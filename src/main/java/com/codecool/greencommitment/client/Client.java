@@ -12,13 +12,13 @@ public class Client {
     private Socket socket;
     private Scanner scanner;
 
-    private Client(int id, InetAddress serverAddress, int serverPort) throws Exception {
+    public Client(int id, InetAddress serverAddress, int serverPort) throws Exception {
         this.id = id;
         this.socket = new Socket(serverAddress, serverPort);
         this.scanner = new Scanner(System.in);
     }
 
-    private void start() throws IOException {
+    public void start() throws IOException {
         String input;
         while (true) {
             input = scanner.nextLine();
@@ -28,9 +28,8 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        Client client = new Client(Integer.parseInt(args[0]), InetAddress.getByName(args[1]), Integer.parseInt(args[2]));
-        System.out.println("\r\nConnected to Server: " + client.socket.getInetAddress());
-        client.start();
+    public void runClient() throws Exception {
+        System.out.println("\r\nConnected to Server: " + this.socket.getInetAddress());
+        this.start();
     }
 }

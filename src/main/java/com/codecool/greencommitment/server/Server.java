@@ -2,29 +2,32 @@ package com.codecool.greencommitment.server;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashSet;
 
 public class Server {
-    private ServerSocket server;
-    private Server(String ipAddress) throws Exception {
-        if (ipAddress != null && !ipAddress.isEmpty())
-            this.server = new ServerSocket(0, 1, InetAddress.getByName(ipAddress));
-        else
-            this.server = new ServerSocket(0, 1, InetAddress.getLocalHost());
-    }
-    private void listen() throws Exception {
-        String data;
-        Socket client = this.server.accept();
-        String clientAddress = client.getInetAddress().getHostAddress();
-        System.out.println("\r\nNew connection from " + clientAddress);
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(client.getInputStream()));
-        while ( (data = in.readLine()) != null ) {
-            System.out.println("\r\nMessage from " + clientAddress + ": " + data);
+    private ServerSocket server;
+    private HashSet<PrintWriter> writers;
+
+
+    public Server(InetAddress ipAddress) throws Exception {
+        this.server = new ServerSocket(0, 1, ipAddress);
+    }
+
+    public void listen() throws Exception {
+
+        try {
+            while (true) {
+                new Handler(server.accept()).start();
+            }
+        } finally {
+            server.close();
         }
+
     }
 
     private InetAddress getSocketAddress() {
@@ -35,12 +38,15 @@ public class Server {
         return this.server.getLocalPort();
     }
 
-    public static void main(String[] args) throws Exception {
-        Server app = new Server(args[0]);
+    public void runServer() throws Exception {
         System.out.println("\r\nRunning Server: " +
-                "Host=" + app.getSocketAddress().getHostAddress() +
-                " Port=" + app.getPort());
+                "Host=" + this.getSocketAddress().getHostAddress() +
+                " Port=" + this.getPort());
 
-        app.listen();
+        this.listen();
+    }
+
+    public HashSet<PrintWriter> getWriters() {
+        return writers;
     }
 }
