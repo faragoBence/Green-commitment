@@ -7,14 +7,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+
     private ServerSocket server;
-    private Server(String ipAddress) throws Exception {
-        if (ipAddress != null && !ipAddress.isEmpty())
-            this.server = new ServerSocket(0, 1, InetAddress.getByName(ipAddress));
-        else
-            this.server = new ServerSocket(0, 1, InetAddress.getLocalHost());
+
+    public Server(InetAddress ipAddress) throws Exception {
+        this.server = new ServerSocket(0, 1, ipAddress);
     }
-    private void listen() throws Exception {
+
+    public void listen() throws Exception {
         String data;
         Socket client = this.server.accept();
         String clientAddress = client.getInetAddress().getHostAddress();
@@ -22,7 +22,7 @@ public class Server {
 
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(client.getInputStream()));
-        while ( (data = in.readLine()) != null ) {
+        while ((data = in.readLine()) != null ) {
             System.out.println("\r\nMessage from " + clientAddress + ": " + data);
         }
     }
@@ -35,12 +35,11 @@ public class Server {
         return this.server.getLocalPort();
     }
 
-    public static void main(String[] args) throws Exception {
-        Server app = new Server(args[0]);
+    public void runServer() throws Exception {
         System.out.println("\r\nRunning Server: " +
-                "Host=" + app.getSocketAddress().getHostAddress() +
-                " Port=" + app.getPort());
+                "Host=" + this.getSocketAddress().getHostAddress() +
+                " Port=" + this.getPort());
 
-        app.listen();
+        this.listen();
     }
 }
