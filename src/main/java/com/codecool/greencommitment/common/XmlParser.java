@@ -15,24 +15,20 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XmlParser {
     Document doc;
-
-    String id;
-    List<Measurement> measurements = new ArrayList<Measurement>();
+    Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Document getDoc() {
         return doc;
     }
 
-    public List<Measurement> getMeasurements() {
-        return measurements;
-    }
-
-    public String getId() {
-        return id;
+    public Map<String, List<Measurement>> getMeasurements() {
+        return measurementsMap;
     }
 
     public void createDoc(Measurement measurement, String id) {
@@ -75,14 +71,26 @@ public class XmlParser {
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
                 Element eElement = (Element) nNode;
-                id = measurement.getAttribute("id");
+                String id = measurement.getAttribute("id");
                 long time = Long.parseLong(eElement.getElementsByTagName("time").item(0).getTextContent());
                 String type = eElement.getElementsByTagName("type").item(0).getTextContent();
                 int unit = Integer.parseInt(eElement.getElementsByTagName("unit").item(0).getTextContent());
                 if (type.equals("Celsius")) {
-                    measurements.add(new TemperatureMeasurement(time, unit, type));
+                    if (measurementsMap.containsKey(id)) {
+                        measurementsMap.get(id).add(new TemperatureMeasurement(time, unit, type));
+                    } else {
+                        List<Measurement> tempList = new ArrayList<>();
+                        tempList.add(new TemperatureMeasurement(time, unit, type));
+                        measurementsMap.put(id, tempList);
+                    }
                 } else {
-                    measurements.add(new MoistureMeasurement(time, unit, type));
+                    if (measurementsMap.containsKey(id)) {
+                        measurementsMap.get(id).add(new MoistureMeasurement(time, unit, type));
+                    } else {
+                        List<Measurement> tempList = new ArrayList<>();
+                        tempList.add(new MoistureMeasurement(time, unit, type));
+                        measurementsMap.put(id, tempList);
+                    }
                 }
 
 
@@ -90,48 +98,51 @@ public class XmlParser {
         }
     }
 
-    public void writeToXML(List<Measurement> mesures, String id) {
+    public void writeToXML(Map<String, List<Measurement>> measurementsMap) {
         try {
+            for (Map.Entry<String, List<Measurement>> entry : measurementsMap.entrySet()) {
+                String id = entry.getKey();
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                Element rootElement;
+                doc = docBuilder.newDocument();
 
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Element rootElement;
-            doc = docBuilder.newDocument();
-
-            if (!new File("src/main/java/com/codecool/greencommitment/" + getId() + ".xml").exists()) {
+                if (!new File("src/main/java/com/codecool/greencommitment/" + id + ".xml").exists()) {
                 rootElement = doc.createElement("measurements");
                 doc.appendChild(rootElement);
             } else {
                 DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-                Document document = documentBuilder.parse("src/main/java/com/codecool/greencommitment/" + getId() + ".xml");
+                    Document document = documentBuilder.parse("src/main/java/com/codecool/greencommitment/" + id + ".xml");
                 Element ror = document.getDocumentElement();
                 rootElement = (Element) doc.importNode(ror, true);
                 doc.appendChild(rootElement);
             }
-            for (Measurement measurement : mesures) {
-                Element measure = doc.createElement("measurement");
-                Attr attr = doc.createAttribute("id");
-                attr.setValue(id);
-                measure.setAttributeNode(attr);
-                rootElement.appendChild(measure);
+                List<Measurement> mesures = measurementsMap.get(id);
+                for (Measurement measurement : mesures) {
+                    Element measure = doc.createElement("measurement");
+                    Attr attr = doc.createAttribute("id");
+                    attr.setValue(id);
+                    measure.setAttributeNode(attr);
+                    rootElement.appendChild(measure);
 
-                Element time = doc.createElement("time");
-                time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
-                measure.appendChild(time);
+                    Element time = doc.createElement("time");
+                    time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
+                    measure.appendChild(time);
 
-                Element unit = doc.createElement("unit");
-                unit.appendChild(doc.createTextNode(Integer.toString(measurement.getUnit())));
-                measure.appendChild(unit);
+                    Element unit = doc.createElement("unit");
+                    unit.appendChild(doc.createTextNode(Integer.toString(measurement.getUnit())));
+                    measure.appendChild(unit);
 
-                Element type = doc.createElement("type");
-                type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
-                measure.appendChild(type);
+                    Element type = doc.createElement("type");
+                    type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
+                    measure.appendChild(type);
+                }
 
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
                 DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(new File("src/main/java/com/codecool/greencommitment/" + getId() + ".xml"));
+                StreamResult result = new StreamResult(new File("src/main/java/com/codecool/greencommitment/" + id + ".xml"));
 
                 transformer.transform(source, result);
 
