@@ -1,29 +1,35 @@
 package com.codecool.greencommitment.common;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlParser {
+    Document doc;
 
-    public void writeToXml(Measurement measurement, String id) {
+
+    List<Measurement> measurements = new ArrayList<Measurement>();
+
+    public Document getDoc() {
+        return doc;
+    }
+
+    public List<Measurement> getMeasurements() {
+        return measurements;
+    }
+
+    public void createDoc(Measurement measurement, String id) {
         try {
 
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
             // root elements
-            Document doc = docBuilder.newDocument();
+            doc = docBuilder.newDocument();
             Element rootElement = doc.createElement("measurement");
             Attr attr = doc.createAttribute("id");
             attr.setValue(id);
@@ -42,21 +48,32 @@ public class XmlParser {
             type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
             rootElement.appendChild(type);
 
-            // write the content into xml file
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(System.out);
-            transformer.transform(source, result);
-            StreamResult kaka = new StreamResult(new File("src/main/java/com/codecool/greencommitment/Test.xml"));
-            transformer.transform(source, kaka);
-
-            System.out.println("File saved!");
-
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
-        } catch (TransformerException tfe) {
-            tfe.printStackTrace();
+        }
+    }
+
+    public void readDoc(Document document) {
+        NodeList nList = document.getElementsByTagName("measurement");
+        Element measurement = document.getDocumentElement();
+        for (int temp = 0; temp < nList.getLength(); temp++) {
+
+            Node nNode = nList.item(temp);
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                Element eElement = (Element) nNode;
+                String id = measurement.getAttribute("id");
+                long time = Long.parseLong(eElement.getElementsByTagName("time").item(0).getTextContent());
+                String type = eElement.getElementsByTagName("type").item(0).getTextContent();
+                int unit = Integer.parseInt(eElement.getElementsByTagName("unit").item(0).getTextContent());
+                if (type.equals("Celsius")) {
+                    measurements.add(new TemperatureMeasurement(time, unit, type));
+                } else {
+                    measurements.add(new MoistureMeasurement(time, unit, type));
+                }
+
+
+            }
         }
     }
 }
