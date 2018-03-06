@@ -20,42 +20,33 @@ import java.util.List;
 import java.util.Map;
 
 public class XmlParser {
+
     Document doc;
     Map<String, List<Measurement>> measurementsMap = new HashMap<>();
-
-    public Document getDoc() {
-        return doc;
-    }
 
     public Map<String, List<Measurement>> getMeasurements() {
         return measurementsMap;
     }
 
+    public Document getDoc() {
+        return doc;
+    }
+
     public void createDoc(Measurement measurement, String id) {
         try {
-
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            doc = docBuilder.newDocument();
 
             // root elements
-            doc = docBuilder.newDocument();
+
             Element rootElement = doc.createElement("measurement");
             Attr attr = doc.createAttribute("id");
             attr.setValue(id);
             rootElement.setAttributeNode(attr);
             doc.appendChild(rootElement);
 
-            Element time = doc.createElement("time");
-            time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
-            rootElement.appendChild(time);
-
-            Element unit = doc.createElement("unit");
-            unit.appendChild(doc.createTextNode(Integer.toString(measurement.getUnit())));
-            rootElement.appendChild(unit);
-
-            Element type = doc.createElement("type");
-            type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
-            rootElement.appendChild(type);
+            doc = appendChild(rootElement, doc, measurement, id);
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -75,24 +66,20 @@ public class XmlParser {
                 long time = Long.parseLong(eElement.getElementsByTagName("time").item(0).getTextContent());
                 String type = eElement.getElementsByTagName("type").item(0).getTextContent();
                 int unit = Integer.parseInt(eElement.getElementsByTagName("unit").item(0).getTextContent());
-                if (type.equals("Celsius")) {
-                    if (measurementsMap.containsKey(id)) {
-                        measurementsMap.get(id).add(new TemperatureMeasurement(time, unit, type));
-                    } else {
-                        List<Measurement> tempList = new ArrayList<>();
-                        tempList.add(new TemperatureMeasurement(time, unit, type));
-                        measurementsMap.put(id, tempList);
-                    }
-                } else {
-                    if (measurementsMap.containsKey(id)) {
-                        measurementsMap.get(id).add(new MoistureMeasurement(time, unit, type));
-                    } else {
-                        List<Measurement> tempList = new ArrayList<>();
-                        tempList.add(new MoistureMeasurement(time, unit, type));
-                        measurementsMap.put(id, tempList);
-                    }
-                }
 
+                Measurement mes;
+                if (type.equals("Celsius")) {
+                    mes = new TemperatureMeasurement(time, unit, type);
+                } else {
+                    mes = new MoistureMeasurement(time, unit, type);
+                }
+                if (measurementsMap.containsKey(id)) {
+                    measurementsMap.get(id).add(mes);
+                } else {
+                    List<Measurement> tempList = new ArrayList<>();
+                    tempList.add(mes);
+                    measurementsMap.put(id, tempList);
+                }
 
             }
         }
@@ -105,19 +92,19 @@ public class XmlParser {
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
                 Element rootElement;
-                doc = docBuilder.newDocument();
+                Document doc = docBuilder.newDocument();
 
                 if (!new File("src/main/java/com/codecool/greencommitment/" + id + ".xml").exists()) {
-                rootElement = doc.createElement("measurements");
-                doc.appendChild(rootElement);
-            } else {
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                    rootElement = doc.createElement("measurements");
+                    doc.appendChild(rootElement);
+                } else {
+                    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
                     Document document = documentBuilder.parse("src/main/java/com/codecool/greencommitment/" + id + ".xml");
-                Element ror = document.getDocumentElement();
-                rootElement = (Element) doc.importNode(ror, true);
-                doc.appendChild(rootElement);
-            }
+                    Element ror = document.getDocumentElement();
+                    rootElement = (Element) doc.importNode(ror, true);
+                    doc.appendChild(rootElement);
+                }
                 List<Measurement> mesures = measurementsMap.get(id);
                 for (Measurement measurement : mesures) {
                     Element measure = doc.createElement("measurement");
@@ -125,18 +112,7 @@ public class XmlParser {
                     attr.setValue(id);
                     measure.setAttributeNode(attr);
                     rootElement.appendChild(measure);
-
-                    Element time = doc.createElement("time");
-                    time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
-                    measure.appendChild(time);
-
-                    Element unit = doc.createElement("unit");
-                    unit.appendChild(doc.createTextNode(Integer.toString(measurement.getUnit())));
-                    measure.appendChild(unit);
-
-                    Element type = doc.createElement("type");
-                    type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
-                    measure.appendChild(type);
+                    doc = appendChild(measure, doc, measurement, id);
                 }
 
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -145,8 +121,6 @@ public class XmlParser {
                 StreamResult result = new StreamResult(new File("src/main/java/com/codecool/greencommitment/" + id + ".xml"));
 
                 transformer.transform(source, result);
-
-                System.out.println("File saved!");
             }
 
         } catch (ParserConfigurationException pce) {
@@ -160,6 +134,22 @@ public class XmlParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Document appendChild(Element rootElement, Document doc, Measurement measurement, String id) {
+
+        Element time = doc.createElement("time");
+        time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
+        rootElement.appendChild(time);
+
+        Element unit = doc.createElement("unit");
+        unit.appendChild(doc.createTextNode(Integer.toString(measurement.getUnit())));
+        rootElement.appendChild(unit);
+
+        Element type = doc.createElement("type");
+        type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
+        rootElement.appendChild(type);
+        return doc;
     }
 
 }
