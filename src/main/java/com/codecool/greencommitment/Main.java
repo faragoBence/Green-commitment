@@ -52,10 +52,10 @@ public class Main {
                     int intPort = Integer.parseInt(port);
                     System.out.print("Enter your id: ");
                     String id = scan.nextLine();
-                    Client client = new Client(123, ipAddress, intPort);
-                    client.start();
+                    Client client = new Client(id, ipAddress, intPort);
+                    client.runClient();
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    System.out.println("FASZ"+e.getMessage());
                 }
             } else {
                 System.out.println("Enter server or client as argument!");

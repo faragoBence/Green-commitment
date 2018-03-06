@@ -19,7 +19,7 @@ public class DataGenerator {
 
     private Random random = new Random();
 
-    public DataGenerator(int numberOfMeasurement, int min, int max, String type) {
+    DataGenerator(int numberOfMeasurement, int min, int max, String type) {
         this.numberOfMeasurement = numberOfMeasurement;
         this.min = min;
         this.max = max;
