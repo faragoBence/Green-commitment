@@ -15,9 +15,31 @@ public class Main {
         }
         try {
             if (args[0].equalsIgnoreCase("server")) {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress("google.com", 80));
-                Server server = new Server(socket.getLocalAddress());
+                Socket socket;
+                try {
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress("google.com", 80));
+                } catch (UnknownHostException unknown) {
+                    socket = new Socket();
+                }
+                Server server;
+                if (!socket.getLocalAddress().toString().equals("0.0.0.0/0.0.0.0")) {
+                    server = new Server(socket.getLocalAddress());
+                } else {
+                    server = new Server(InetAddress.getLocalHost());
+                }
+                System.out.print("Provide port (0 to use default): ");
+                String port = scan.nextLine();
+                try {
+                    int intPort = Integer.parseInt(port);
+                    if (intPort == 0) {
+                        System.out.println("Starting server with default port.");
+                    } else {
+                        server.setPort(intPort);
+                    }
+                } catch (NumberFormatException nf) {
+                    System.out.println("Invalid port entered. Starting server with default port.");
+                }
                 server.runServer();
                 server.listen();
             } else if (args[0].equalsIgnoreCase("client")) {
@@ -28,6 +50,8 @@ public class Main {
                     System.out.print("Enter PORT: ");
                     String port = scan.nextLine();
                     int intPort = Integer.parseInt(port);
+                    System.out.print("Enter your id: ");
+                    String id = scan.nextLine();
                     Client client = new Client(123, ipAddress, intPort);
                     client.start();
                 } catch (Exception e) {
