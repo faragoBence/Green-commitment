@@ -26,7 +26,7 @@ public class Handler extends Thread {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             XmlParser xmlParser = new XmlParser();
-            while (socket.isOutputShutdown()) {
+            while (!socket.isClosed()) {
                 Document dom = dBuilder.parse(socket.getInputStream());
                 xmlParser.readDoc(dom);
             }
