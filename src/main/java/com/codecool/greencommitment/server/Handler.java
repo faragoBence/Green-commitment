@@ -10,9 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashSet;
 
 public class Handler extends Thread {
 
@@ -33,10 +31,11 @@ public class Handler extends Thread {
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-
-            Document dom = dBuilder.parse(socket.getInputStream());
             XmlParser xmlParser = new XmlParser();
-            xmlParser.readDoc(dom);
+            while (socket.isOutputShutdown()) {
+                Document dom = dBuilder.parse(socket.getInputStream());
+                xmlParser.readDoc(dom);
+            }
             xmlParser.writeToXML(xmlParser.getMeasurements());
 
         } catch (IOException e) {

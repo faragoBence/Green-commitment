@@ -29,11 +29,6 @@ public class XmlParser {
     public Map<String, List<Measurement>> getMeasurements() {
         return measurementsMap;
     }
-
-    public Document getDoc() {
-        return doc;
-    }
-
     public DOMSource getSource() {
         return source;
     }
@@ -54,7 +49,6 @@ public class XmlParser {
 
             doc = appendChild(rootElement, doc, measurement, id);
             source = new DOMSource(doc);
-            doc = (Document) source.getNode();
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();

@@ -1,6 +1,6 @@
 package com.codecool.greencommitment.client;
 
-import com.codecool.greencommitment.common.TemperatureMeasurement;
+import com.codecool.greencommitment.common.Measurement;
 import com.codecool.greencommitment.common.XmlParser;
 
 import javax.xml.transform.Transformer;
@@ -10,9 +10,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client {
@@ -29,22 +29,26 @@ public class Client {
         this.parser = new XmlParser();
     }
 
-    public void start() throws IOException {
+    public void start() throws IOException, InterruptedException {
         String input;
-        parser.createDoc(new TemperatureMeasurement(1111, 30,"Celsius"),id);
-        DOMSource domsource = parser.getSource();
-        StreamResult result = new StreamResult(socket.getOutputStream());
-        TransformerFactory tFactory =
-                TransformerFactory.newInstance();
-        try {
-            Transformer transformer =
-                    tFactory.newTransformer();
-            transformer.transform(domsource, result);
+        List<Measurement> measurements = new DataGenerator(20, 10, 25, "temp").createData();
+        for (Measurement mes : measurements) {
+            Thread.sleep(2000);
+            parser.createDoc(mes, id);
+            DOMSource domsource = parser.getSource();
+            StreamResult result = new StreamResult(socket.getOutputStream());
+            TransformerFactory tFactory =
+                    TransformerFactory.newInstance();
+            try {
+                Transformer transformer =
+                        tFactory.newTransformer();
+                transformer.transform(domsource, result);
 
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
+            } catch (TransformerConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            }
         }
 
 
