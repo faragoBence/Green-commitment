@@ -1,6 +1,8 @@
 package com.codecool.greencommitment;
 
 import com.codecool.greencommitment.client.Client;
+import com.codecool.greencommitment.client.DataGenerator;
+import com.codecool.greencommitment.client.Type;
 import com.codecool.greencommitment.server.Server;
 import java.net.*;
 import java.util.Scanner;
@@ -8,6 +10,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
+        DataGenerator dg;
         Scanner scan = new Scanner(System.in);
         if (args.length == 0) {
             System.out.println("Enter server or client as argument!");
@@ -53,9 +56,25 @@ public class Main {
                     System.out.print("Enter your id: ");
                     String id = scan.nextLine();
                     while (true) {
-                        Client client = new Client(id, ipAddress, intPort);
-                        client.runClient();
-                        Thread.sleep(2000);
+                            System.out.print("Enter the data type [TEMPERATURE / MOISTURE]:");
+                            String type = scan.nextLine();
+                        try {
+                            Type enumType = Type.valueOf(type.toUpperCase());
+                            dg = new DataGenerator(enumType);
+                            while (true) {
+                                try {
+                                    Client client = new Client(id, ipAddress, intPort);
+                                    client.runClient(dg.createData());
+                                    Thread.sleep(2000);
+                                } catch (Exception f) {
+                                    System.out.println("Server stopped running.");
+                                    System.exit(0);
+                                }
+                            }
+                        } catch (IllegalArgumentException ill) {
+                            System.out.println("Please enter a valid data type.");
+                        }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

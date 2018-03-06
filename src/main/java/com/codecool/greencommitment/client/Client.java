@@ -25,9 +25,8 @@ public class Client {
         this.socket = new Socket(serverAddress, serverPort);
     }
 
-    private void start() throws IOException {
+    private void start(Measurement mes) throws IOException {
         parser = new XmlParser();
-        Measurement mes = new TemperatureMeasurement(12, 30, "celsius");
         parser.createDoc(mes, id);
 
         StreamResult result = new StreamResult(socket.getOutputStream() );
@@ -46,8 +45,8 @@ public class Client {
     }
 
 
-    public void runClient() throws Exception {
+    public void runClient(Measurement mes) throws Exception {
         System.out.println("\r\nConnected to Server: " + this.socket.getInetAddress());
-        this.start();
+        this.start(mes);
     }
 }
