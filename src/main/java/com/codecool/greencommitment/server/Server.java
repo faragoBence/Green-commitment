@@ -17,7 +17,7 @@ public class Server {
 
     public Server(InetAddress ipAddress) throws Exception {
         this.server = new ServerSocket(0, 1, ipAddress);
-        port = this.server.getLocalPort();
+        port = 6969;
     }
 
     public void listen() throws Exception {
@@ -34,10 +34,6 @@ public class Server {
 
     private InetAddress getSocketAddress() {
         return this.server.getInetAddress();
-    }
-
-    private int getPort() {
-        return this.server.getLocalPort();
     }
 
     public void setPort(int port) {
