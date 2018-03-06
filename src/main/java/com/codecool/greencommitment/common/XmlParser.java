@@ -22,6 +22,8 @@ import java.util.Map;
 public class XmlParser {
 
     Document doc;
+
+    DOMSource source;
     Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
@@ -30,6 +32,10 @@ public class XmlParser {
 
     public Document getDoc() {
         return doc;
+    }
+
+    public DOMSource getSource() {
+        return source;
     }
 
     public void createDoc(Measurement measurement, String id) {
@@ -47,6 +53,7 @@ public class XmlParser {
             doc.appendChild(rootElement);
 
             doc = appendChild(rootElement, doc, measurement, id);
+            source = new DOMSource(doc);
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -105,12 +112,12 @@ public class XmlParser {
                     rootElement = (Element) doc.importNode(ror, true);
                     doc.appendChild(rootElement);
                 }
+                Attr attr = doc.createAttribute("id");
+                attr.setValue(id);
+                rootElement.setAttributeNode(attr);
                 List<Measurement> mesures = measurementsMap.get(id);
                 for (Measurement measurement : mesures) {
                     Element measure = doc.createElement("measurement");
-                    Attr attr = doc.createAttribute("id");
-                    attr.setValue(id);
-                    measure.setAttributeNode(attr);
                     rootElement.appendChild(measure);
                     doc = appendChild(measure, doc, measurement, id);
                 }
@@ -118,7 +125,8 @@ public class XmlParser {
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
                 DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(new File("src/main/java/com/codecool/greencommitment/" + id + ".xml"));
+                StreamResult result = new StreamResult(new File("resources/" + id + ".xml"));
+
 
                 transformer.transform(source, result);
             }
