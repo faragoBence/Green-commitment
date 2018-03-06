@@ -55,7 +55,7 @@ public class Main {
                     Client client = new Client(id, ipAddress, intPort);
                     client.runClient();
                 } catch (Exception e) {
-                    System.out.println("FASZ"+e.getMessage());
+                    e.printStackTrace();
                 }
             } else {
                 System.out.println("Enter server or client as argument!");
