@@ -21,6 +21,7 @@ import java.util.Map;
 public class XmlParser {
 
     private DOMSource source;
+    public Document doc;
     private Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
@@ -46,13 +47,14 @@ public class XmlParser {
 
             doc = appendChild(rootElement, doc, measurement, id);
             source = new DOMSource(doc);
+            this.doc = doc;
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         }
     }
 
-    public void readDoc(Document document) {
+    public void readDoc(Document document, Map<String, List<Measurement>> measurementsMap) {
         NodeList nList = document.getElementsByTagName("measurement");
         Element measurement = document.getDocumentElement();
         for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -142,6 +144,18 @@ public class XmlParser {
         type.appendChild(doc.createTextNode(measurement.getUnitOfMeasurement()));
         rootElement.appendChild(type);
         return doc;
+    }
+
+    public Map<String, List<Measurement>> readXMLFile(String path) throws ParserConfigurationException, IOException, SAXException {
+        Map<String, List<Measurement>> measurementsMap = new HashMap<>();
+        File[] files = new File(path).listFiles();
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        for (File file : files) {
+            Document doc = dBuilder.parse(path + "/" + file.getName());
+            readDoc(doc, measurementsMap);
+        }
+        return measurementsMap;
     }
 
 }

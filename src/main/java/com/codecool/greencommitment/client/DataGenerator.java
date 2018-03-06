@@ -21,7 +21,6 @@ public class DataGenerator {
     public Measurement createData() {
         Measurement measure = null;
         long time = Instant.now().toEpochMilli();
-        time += 2000;
         String unitOfMeasurement;
         int unit;
         switch (type) {
@@ -31,7 +30,7 @@ public class DataGenerator {
                 measure = new TemperatureMeasurement(time, unit, unitOfMeasurement);
                 return measure;
             case MOISTURE:
-                unit = 45 + random.nextInt(70);
+                unit = 20 + random.nextInt(70);
                 unitOfMeasurement = "%";
                 measure = new MoistureMeasurement(time, unit, unitOfMeasurement);
                 return measure;

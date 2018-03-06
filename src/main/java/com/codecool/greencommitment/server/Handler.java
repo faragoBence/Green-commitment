@@ -28,7 +28,7 @@ public class Handler extends Thread {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             while (!socket.isClosed()) {
                 Document dom = dBuilder.parse(socket.getInputStream());
-                xmlParser.readDoc(dom);
+                xmlParser.readDoc(dom, xmlParser.getMeasurements());
             }
             xmlParser.writeToXML(xmlParser.getMeasurements());
 
