@@ -13,6 +13,7 @@ import java.net.Socket;
 public class Handler extends Thread {
 
     private Socket socket;
+    private XmlParser xmlParser = new XmlParser();
 
     Handler(Socket socket) {
         this.socket = socket;
@@ -21,11 +22,10 @@ public class Handler extends Thread {
     public void run() {
         try {
             String clientAddress = socket.getInetAddress().getHostAddress();
-            System.out.println("\r\nNew connection from " + clientAddress);
+            System.out.println("\r\nNew measurement from " + clientAddress);
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            XmlParser xmlParser = new XmlParser();
             while (!socket.isClosed()) {
                 Document dom = dBuilder.parse(socket.getInputStream());
                 xmlParser.readDoc(dom);

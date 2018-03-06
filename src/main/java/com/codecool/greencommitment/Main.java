@@ -52,8 +52,11 @@ public class Main {
                     int intPort = Integer.parseInt(port);
                     System.out.print("Enter your id: ");
                     String id = scan.nextLine();
-                    Client client = new Client(id, ipAddress, intPort);
-                    client.runClient();
+                    while (true) {
+                        Client client = new Client(id, ipAddress, intPort);
+                        client.runClient();
+                        Thread.sleep(2000);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

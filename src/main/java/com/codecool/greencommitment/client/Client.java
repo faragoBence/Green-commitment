@@ -23,14 +23,14 @@ public class Client {
     public Client(String id, InetAddress serverAddress, int serverPort) throws Exception {
         this.id = id;
         this.socket = new Socket(serverAddress, serverPort);
-        this.parser = new XmlParser();
     }
 
-    private void start() throws IOException, InterruptedException {
+    private void start() throws IOException {
+        parser = new XmlParser();
         Measurement mes = new TemperatureMeasurement(12, 30, "celsius");
         parser.createDoc(mes, id);
 
-        StreamResult result = new StreamResult(socket.getOutputStream());
+        StreamResult result = new StreamResult(socket.getOutputStream() );
         TransformerFactory tFactory = TransformerFactory.newInstance();
         DOMSource domsource = parser.getSource();
         try {
@@ -41,6 +41,8 @@ public class Client {
         } catch (TransformerException e) {
             e.printStackTrace();
         }
+
+        socket.close();
     }
 
 
