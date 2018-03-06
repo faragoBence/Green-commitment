@@ -118,7 +118,7 @@ public class XmlParser {
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
                 Transformer transformer = transformerFactory.newTransformer();
                 DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(new File("src/main/java/com/codecool/greencommitment/" + id + ".xml"));
+                StreamResult result = new StreamResult(new File("resources/" + id + ".xml"));
 
                 transformer.transform(source, result);
             }
