@@ -17,12 +17,12 @@ import java.util.Scanner;
 
 public class Client {
 
-    private int id;
+    private String id;
     private Socket socket;
     private Scanner scanner;
     private XmlParser parser;
 
-    public Client(int id, InetAddress serverAddress, int serverPort) throws Exception {
+    public Client(String id, InetAddress serverAddress, int serverPort) throws Exception {
         this.id = id;
         this.socket = new Socket(serverAddress, serverPort);
         this.scanner = new Scanner(System.in);
@@ -31,7 +31,7 @@ public class Client {
 
     public void start() throws IOException {
         String input;
-        parser.createDoc(new TemperatureMeasurement(1111, 30,"Celsius"),"123");
+        parser.createDoc(new TemperatureMeasurement(1111, 30,"Celsius"),id);
         DOMSource domsource = parser.getSource();
         StreamResult result = new StreamResult(socket.getOutputStream());
         TransformerFactory tFactory =
