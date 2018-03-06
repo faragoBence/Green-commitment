@@ -94,13 +94,13 @@ public class XmlParser {
                 Element rootElement;
                 Document doc = docBuilder.newDocument();
 
-                if (!new File("src/main/java/com/codecool/greencommitment/" + id + ".xml").exists()) {
+                if (!new File("resources/" + id + ".xml").exists()) {
                     rootElement = doc.createElement("measurements");
                     doc.appendChild(rootElement);
                 } else {
                     DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-                    Document document = documentBuilder.parse("src/main/java/com/codecool/greencommitment/" + id + ".xml");
+                    Document document = documentBuilder.parse("resources/" + id + ".xml");
                     Element ror = document.getDocumentElement();
                     rootElement = (Element) doc.importNode(ror, true);
                     doc.appendChild(rootElement);
@@ -123,16 +123,8 @@ public class XmlParser {
                 transformer.transform(source, result);
             }
 
-        } catch (ParserConfigurationException pce) {
+        } catch (ParserConfigurationException | TransformerException | SAXException | IOException pce) {
             pce.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
