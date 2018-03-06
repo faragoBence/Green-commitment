@@ -2,11 +2,11 @@ package com.codecool.greencommitment.common;
 
 public abstract class  Measurement {
 
-    long currentTime;
-    int unit;
-    String unitOfMeasurement;
+    private long currentTime;
+    private int unit;
+    private String unitOfMeasurement;
 
-    public Measurement(long currentTime, int unit, String unitOfMeasurement){
+    Measurement(long currentTime, int unit, String unitOfMeasurement){
         this.currentTime = currentTime;
         this.unit = unit;
         this.unitOfMeasurement = unitOfMeasurement;

@@ -1,7 +1,6 @@
 package com.codecool.greencommitment.client;
 
 import com.codecool.greencommitment.common.Measurement;
-import com.codecool.greencommitment.common.TemperatureMeasurement;
 import com.codecool.greencommitment.common.XmlParser;
 
 import javax.xml.transform.Transformer;
@@ -12,13 +11,11 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.List;
 
 public class Client {
 
     private String id;
     private Socket socket;
-    private XmlParser parser;
 
     public Client(String id, InetAddress serverAddress, int serverPort) throws Exception {
         this.id = id;
@@ -26,7 +23,7 @@ public class Client {
     }
 
     private void start(Measurement mes) throws IOException {
-        parser = new XmlParser();
+        XmlParser parser = new XmlParser();
         parser.createDoc(mes, id);
 
         StreamResult result = new StreamResult(socket.getOutputStream() );

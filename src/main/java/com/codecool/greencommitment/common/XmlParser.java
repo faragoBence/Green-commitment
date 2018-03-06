@@ -7,7 +7,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -21,10 +20,8 @@ import java.util.Map;
 
 public class XmlParser {
 
-    Document doc;
-
-    DOMSource source;
-    Map<String, List<Measurement>> measurementsMap = new HashMap<>();
+    private DOMSource source;
+    private Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
         return measurementsMap;
@@ -37,7 +34,7 @@ public class XmlParser {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            doc = docBuilder.newDocument();
+            Document doc = docBuilder.newDocument();
 
             // root elements
 
@@ -126,20 +123,12 @@ public class XmlParser {
                 transformer.transform(source, result);
             }
 
-        } catch (ParserConfigurationException pce) {
+        } catch (ParserConfigurationException | TransformerException | IOException | SAXException pce) {
             pce.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    public Document appendChild(Element rootElement, Document doc, Measurement measurement, String id) {
+    private Document appendChild(Element rootElement, Document doc, Measurement measurement, String id) {
 
         Element time = doc.createElement("time");
         time.appendChild(doc.createTextNode(Long.toString(measurement.getCurrentTime())));
