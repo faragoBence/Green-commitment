@@ -12,10 +12,12 @@ public class Server {
 
     private ServerSocket server;
     private HashSet<PrintWriter> writers;
+    private int port;
 
 
     public Server(InetAddress ipAddress) throws Exception {
         this.server = new ServerSocket(0, 1, ipAddress);
+        port = this.server.getLocalPort();
     }
 
     public void listen() throws Exception {
@@ -38,10 +40,14 @@ public class Server {
         return this.server.getLocalPort();
     }
 
+    public void setPort(int port) {
+        this.port = port;
+    }
+
     public void runServer() throws Exception {
         System.out.println("\r\nRunning Server: " +
                 "Host=" + this.getSocketAddress().getHostAddress() +
-                " Port=" + this.getPort());
+                " Port=" + port);
 
         this.listen();
     }
