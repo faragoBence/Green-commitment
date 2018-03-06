@@ -48,4 +48,21 @@ public class DataGenerator {
         }
         return list;
     }
+
+    public Measurement getRandomMeasurement() {
+        Measurement result = null;
+        String unitOfMeasurement;
+        int unit = random.nextInt(max-min) + min;
+        long time = Instant.now().toEpochMilli();
+
+        if (type.equals("temp")) {
+            unitOfMeasurement = "Celsius";
+            result = new TemperatureMeasurement(time, unit,unitOfMeasurement );
+        }
+        else if (type.equals("moisture")) {
+            unitOfMeasurement = "%";
+            result = new MoistureMeasurement(time, unit, unitOfMeasurement);
+        }
+        return result;
+    }
 }
