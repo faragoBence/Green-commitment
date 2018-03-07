@@ -26,16 +26,11 @@ public class Server extends Thread {
     }
 
     public void listen() throws Exception {
-        InputRead inputRead = new InputRead();
-        while (inputRead.getInput()) {
-            inputRead.run();
-                Document dom = new Handler(server.accept()).startRun();
-                xmlParser.readDoc(dom, measurements);
-            }
-        System.out.println("Works");
-        xmlParser.writeToXML(measurements);
-        System.exit(0);
-
+        while (true) {
+            Document dom = new Handler(server.accept()).startRun();
+            xmlParser.readDoc(dom, measurements);
+            xmlParser.writeToXML(measurements);
+        }
     }
 
     private InetAddress getSocketAddress() {
