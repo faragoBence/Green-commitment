@@ -25,12 +25,12 @@ public class DataGenerator {
         int unit;
         switch (type) {
             case TEMPERATURE:
-                unit = 15 + random.nextInt(30);
+                unit = 15 + random.nextInt(25);
                 unitOfMeasurement = "Celsius";
                 measure = new TemperatureMeasurement(time, unit, unitOfMeasurement);
                 return measure;
             case MOISTURE:
-                unit = 20 + random.nextInt(70);
+                unit = 20 + random.nextInt(50);
                 unitOfMeasurement = "%";
                 measure = new MoistureMeasurement(time, unit, unitOfMeasurement);
                 return measure;

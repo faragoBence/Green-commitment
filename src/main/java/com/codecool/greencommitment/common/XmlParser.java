@@ -146,7 +146,8 @@ public class XmlParser {
         return doc;
     }
 
-    public Map<String, List<Measurement>> readXMLFile(String path) throws ParserConfigurationException, IOException, SAXException {
+    public Map<String, List<Measurement>> readXMLFiles
+            (String path) throws ParserConfigurationException, IOException, SAXException {
         Map<String, List<Measurement>> measurementsMap = new HashMap<>();
         File[] files = new File(path).listFiles();
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

@@ -1,6 +1,5 @@
 package com.codecool.greencommitment.server;
 
-import com.codecool.greencommitment.common.XmlParser;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -13,7 +12,7 @@ import java.net.Socket;
 public class Handler extends Thread {
 
     private Socket socket;
-    private XmlParser xmlParser = new XmlParser();
+    Document dom;
 
     Handler(Socket socket) {
         this.socket = socket;
@@ -26,14 +25,16 @@ public class Handler extends Thread {
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            while (!socket.isClosed()) {
-                Document dom = dBuilder.parse(socket.getInputStream());
-                xmlParser.readDoc(dom, xmlParser.getMeasurements());
-            }
-            xmlParser.writeToXML(xmlParser.getMeasurements());
+            dom = dBuilder.parse(socket.getInputStream());
+
 
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         }
+    }
+
+    public Document startRun() {
+        run();
+        return dom;
     }
 }
