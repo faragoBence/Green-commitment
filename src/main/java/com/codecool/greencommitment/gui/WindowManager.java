@@ -4,6 +4,13 @@ import com.codecool.greencommitment.client.Client;
 import com.codecool.greencommitment.client.DataGenerator;
 import com.codecool.greencommitment.client.Type;
 import com.codecool.greencommitment.server.Server;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.ui.ApplicationFrame;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,9 +47,11 @@ public class WindowManager {
         JPanel panel = new JPanel();
         JButton server = new JButton("server");
         JButton client = new JButton("client");
+        JButton chart = new JButton(("chart"));
 
         panel.add(server);
         panel.add(client);
+        panel.add(chart);
         ActionListener click = e -> {
             switch (((JButton) e.getSource()).getText()) {
                 case "server": {
@@ -55,11 +64,18 @@ public class WindowManager {
                 }
                 case "client": {
                     handleClient();
+                    break;
+                }
+
+                case "chart" : {
+                    handleChart();
+                    break;
                 }
             }
         };
         server.addActionListener(click);
         client.addActionListener(click);
+        chart.addActionListener(click);
         return panel;
     }
 
@@ -170,8 +186,8 @@ public class WindowManager {
         panel.add(scrollPane, c);
         frame.add(panel);
         ActionListener click = e -> {
-            Thread t1 = new Thread(new Runnable() {
-                public void run() {
+            //Thread t1 = new Thread(new Runnable() {
+                //public void run() {
                     Type type;
                     int intPort;
                     int intTime;
@@ -210,9 +226,9 @@ public class WindowManager {
                             System.exit(0);
                         }
                     }
-                }
-            });
-            t1.start();
+              //  }
+           // });
+           // t1.start();
         };
         connectButton.addActionListener(click);
     }
@@ -238,5 +254,45 @@ public class WindowManager {
         } catch (NumberFormatException nfe) {
             return false;
         }
+    }
+
+    public void handleChart() {
+        JFrame frame = new JFrame("Green Commitment - KokeroTCP - Line Chart");
+        frame.setVisible(true);
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        panel.setVisible(true);
+        GridBagConstraints c = new GridBagConstraints();
+        c.weightx = 1;
+        c.weighty = .25;
+        c.insets = new Insets(1, 30, 1, 30);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.fill = GridBagConstraints.BOTH;
+
+        JFreeChart lineChart = ChartFactory.createLineChart(
+                "Chart Title",
+                "name of x axis","name of y axis",
+                createDataset(),
+                PlotOrientation.VERTICAL,
+                true,true,false);
+
+        ChartPanel chartPanel = new ChartPanel( lineChart );
+        chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
+        //ApplicationFrame setContentPane( chartPanel );
+        ChartPanel cp = new ChartPanel(lineChart);
+        frame.add(cp);
+    }
+
+    private DefaultCategoryDataset createDataset( ) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
+        dataset.addValue( 15 , "schools" , "1970" );
+        dataset.addValue( 30 , "schools" , "1980" );
+        dataset.addValue( 60 , "schools" ,  "1990" );
+        dataset.addValue( 120 , "schools" , "2000" );
+        dataset.addValue( 240 , "schools" , "2010" );
+        dataset.addValue( 300 , "schools" , "2014" );
+        return dataset;
     }
 }
