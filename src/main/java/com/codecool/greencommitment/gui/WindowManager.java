@@ -30,12 +30,12 @@ public class WindowManager {
     private Thread thread;
     private DataGenerator dg;
 
-    WindowManager(int width, int height) {
+    public WindowManager(int width, int height) {
         this.width = width;
         this.height = height;
     }
 
-    void run() {
+    public void run() {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP");
         frame.setVisible(true);
         frame.setSize(width, height);

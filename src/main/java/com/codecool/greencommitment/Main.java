@@ -3,6 +3,7 @@ package com.codecool.greencommitment;
 import com.codecool.greencommitment.client.Client;
 import com.codecool.greencommitment.client.DataGenerator;
 import com.codecool.greencommitment.client.Type;
+import com.codecool.greencommitment.gui.WindowManager;
 import com.codecool.greencommitment.server.Server;
 
 import java.net.*;
@@ -73,6 +74,9 @@ public class Main {
                         System.exit(0);
                     }
                 }
+            } else if (args[0].equalsIgnoreCase("gui")) {
+                WindowManager window = new WindowManager(400, 150);
+                window.run();
             } else {
                 System.out.println("Enter server or client as argument!");
             }
