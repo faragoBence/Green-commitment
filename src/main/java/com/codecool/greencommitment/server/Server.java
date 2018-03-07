@@ -64,4 +64,8 @@ public class Server extends Thread {
 
         this.listen();
     }
+
+    public Map<String, List<Measurement>> getMeasurements() {
+        return measurements;
+    }
 }
