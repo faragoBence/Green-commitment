@@ -16,6 +16,7 @@ public class Client {
 
     private String id;
     private Socket socket;
+    private Type type;
 
     public Client(String id, InetAddress serverAddress, int serverPort) throws Exception {
         this.id = id;
@@ -41,6 +42,13 @@ public class Client {
         socket.close();
     }
 
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Type getType() {
+        return type;
+    }
 
     public void runClient(Measurement mes) throws Exception {
         System.out.println("\r\nConnected to Server: " + this.socket.getInetAddress());

@@ -4,6 +4,7 @@ import com.codecool.greencommitment.client.Client;
 import com.codecool.greencommitment.client.DataGenerator;
 import com.codecool.greencommitment.client.Type;
 import com.codecool.greencommitment.server.Server;
+
 import java.net.*;
 import java.util.Scanner;
 
@@ -31,62 +32,88 @@ public class Main {
                 } else {
                     server = new Server(InetAddress.getLocalHost());
                 }
-                System.out.print("Provide port (0 to use default): ");
-                String port = scan.nextLine();
-                try {
-                    int intPort = Integer.parseInt(port);
-                    if (intPort == 0) {
-                        System.out.println("Starting server with default port.");
-                    } else {
-                        server.setPort(intPort);
-                    }
-                } catch (NumberFormatException nf) {
-                    System.out.println("Invalid port entered. Starting server with default port.");
-                }
                 server.runServer();
                 server.listen();
             } else if (args[0].equalsIgnoreCase("client")) {
-                System.out.print("Enter IP: ");
-                String IP = scan.nextLine();
-                try {
-                    InetAddress ipAddress = InetAddress.getByName(IP);
-                    System.out.print("Enter PORT: ");
-                    String port = scan.nextLine();
-                    int intPort = Integer.parseInt(port);
-                    System.out.print("Enter your id: ");
-                    String id = scan.nextLine();
-                    while (true) {
-                            System.out.print("Enter the data type [TEMPERATURE / MOISTURE]:");
-                            String type = scan.nextLine();
-                        try {
-                            Type enumType = Type.valueOf(type.toUpperCase());
-                            dg = new DataGenerator(enumType);
-                            while (true) {
-                                try {
-                                    Client client = new Client(id, ipAddress, intPort);
-                                    client.runClient(dg.createData());
-                                    Thread.sleep(2000);
-                                } catch (Exception f) {
-                                    System.out.println("Server stopped running.");
-                                    System.exit(0);
-                                }
-                            }
-                        } catch (IllegalArgumentException ill) {
-                            System.out.println("Please enter a valid data type.");
-                        }
-
+                InetAddress ipAddress;
+                while (true) {
+                    System.out.print("Enter IP: ");
+                    String IP = scan.nextLine();
+                    if (validIP(IP)) {
+                        ipAddress = InetAddress.getByName(IP);
+                        break;
+                    } else {
+                        System.out.println("Please enter a valid IP!");
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                }
+                int intPort = getIntInput("Enter PORT: ");
+                System.out.print("Enter your id: ");
+                String id = scan.nextLine();
+                Type enumType;
+                while (true) {
+                    System.out.print("Enter the data type [TEMPERATURE / MOISTURE]: ");
+                    String type = scan.nextLine();
+                    try {
+                        enumType = Type.valueOf(type.toUpperCase());
+                        break;
+                    } catch (IllegalArgumentException ill) {
+                        System.out.println("Please enter a valid data type.");
+                    }
+                }
+                dg = new DataGenerator(enumType);
+                int intSeconds = getIntInput("Enter the number of seconds between measurements: ");
+                while (true) {
+                    try {
+                        Client client = new Client(id, ipAddress, intPort);
+                        client.setType(enumType);
+                        client.runClient(dg.createData());
+                        Thread.sleep(intSeconds * 1000);
+                    } catch (Exception f) {
+                        System.out.println("Server stopped running.");
+                        System.exit(0);
+                    }
                 }
             } else {
                 System.out.println("Enter server or client as argument!");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    private static int getIntInput(String message) {
+        Scanner scan = new Scanner(System.in);
+        while (true) {
+            System.out.print(message);
+            String input = scan.nextLine();
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException nf) {
+                System.out.println("Please enter numbers!");
+            }
+        }
+    }
 
+    private static boolean validIP(String ip) {
+        try {
+            if (ip == null || ip.isEmpty()) {
+                return false;
+            }
+
+            String[] parts = ip.split("\\.");
+            if (parts.length != 4) {
+                return false;
+            }
+
+            for (String s : parts) {
+                int i = Integer.parseInt(s);
+                if ((i < 0) || (i > 255)) {
+                    return false;
+                }
+            }
+            return !ip.endsWith(".");
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
     }
 }
