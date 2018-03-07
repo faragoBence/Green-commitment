@@ -1,12 +1,24 @@
 package com.codecool.greencommitment.server;
 
+import com.codecool.greencommitment.common.Measurement;
+import com.codecool.greencommitment.common.XmlParser;
+import org.w3c.dom.Document;
+
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
-public class Server {
+public class Server extends Thread {
 
     private ServerSocket server;
     private int port;
+    XmlParser xmlParser = new XmlParser();
+    Map<String, List<Measurement>> measurements = new HashMap<>();
+    Boolean run = true;
+    Scanner scanner = new Scanner(System.in);
 
 
     public Server(InetAddress ipAddress) throws Exception {
@@ -15,14 +27,17 @@ public class Server {
     }
 
     public void listen() throws Exception {
-
+        run();
         try {
-            while (true) {
-                new Handler(server.accept()).start();
+            while (run) {
+                Document dom = new Handler(server.accept()).startRun();
+                xmlParser.readDoc(dom, measurements);
             }
         } finally {
             server.close();
         }
+        xmlParser.writeToXML(measurements);
+        System.exit(0);
 
     }
 
@@ -40,5 +55,12 @@ public class Server {
                 " Port=" + port);
 
         this.listen();
+    }
+
+    public void run() {
+        String str = scanner.nextLine();
+        if (str.equals("q")) {
+            run = false;
+        }
     }
 }
