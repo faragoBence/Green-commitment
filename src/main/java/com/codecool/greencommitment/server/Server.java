@@ -17,7 +17,6 @@ public class Server extends Thread {
     private int port;
     XmlParser xmlParser = new XmlParser();
     Map<String, List<Measurement>> measurements = new HashMap<>();
-    Boolean run = true;
     Scanner scanner = new Scanner(System.in);
 
 
@@ -27,15 +26,13 @@ public class Server extends Thread {
     }
 
     public void listen() throws Exception {
-        run();
-        try {
-            while (run) {
+        InputRead inputRead = new InputRead();
+        while (inputRead.getInput()) {
+            inputRead.run();
                 Document dom = new Handler(server.accept()).startRun();
                 xmlParser.readDoc(dom, measurements);
             }
-        } finally {
-            server.close();
-        }
+        System.out.println("Works");
         xmlParser.writeToXML(measurements);
         System.exit(0);
 
@@ -55,12 +52,5 @@ public class Server extends Thread {
                 " Port=" + port);
 
         this.listen();
-    }
-
-    public void run() {
-        String str = scanner.nextLine();
-        if (str.equals("q")) {
-            run = false;
-        }
     }
 }
