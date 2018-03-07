@@ -170,44 +170,49 @@ public class WindowManager {
         panel.add(scrollPane, c);
         frame.add(panel);
         ActionListener click = e -> {
-            Type type;
-            int intPort;
-            int intTime;
-            if (!validIP(ip.getText())) {
-                connection.setText("<html>The IP entered is invalid.<br><br><br>No data flow.</html>");
-                return;
-            }
-            try {
-                intPort = Integer.parseInt(port.getText());
-            } catch (NumberFormatException nf) {
-                connection.setText("<html>The PORT entered is invalid.<br><br><br>No data flow.</html>");
-                return;
-            }
-            try {
-                type = Type.valueOf(data.getText().toUpperCase());
-            } catch (IllegalArgumentException ill) {
-                connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
-                return;
-            }
-            try {
-                intTime = Integer.parseInt(time.getText());
-            } catch (NumberFormatException nf) {
-                connection.setText("<html>The TIME entered is invalid.<br>ENTER THE NUMBER OF SECONDS<br><br>No data flow.</html>");
-                return;
-            }
-            dg = new DataGenerator(type);
-            while (true) {
-                connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
-                try {
-                    Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
-                    client.setType(type);
-                    client.runClient(dg.createData());
-                    Thread.sleep(intTime * 1000);
-                } catch (Exception f) {
-                    System.out.println("Server stopped running.");
-                    System.exit(0);
+            Thread t1 = new Thread(new Runnable() {
+                public void run() {
+                    Type type;
+                    int intPort;
+                    int intTime;
+                    if (!validIP(ip.getText())) {
+                        connection.setText("<html>The IP entered is invalid.<br><br><br>No data flow.</html>");
+                        return;
+                    }
+                    try {
+                        intPort = Integer.parseInt(port.getText());
+                    } catch (NumberFormatException nf) {
+                        connection.setText("<html>The PORT entered is invalid.<br><br><br>No data flow.</html>");
+                        return;
+                    }
+                    try {
+                        type = Type.valueOf(data.getText().toUpperCase());
+                    } catch (IllegalArgumentException ill) {
+                        connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
+                        return;
+                    }
+                    try {
+                        intTime = Integer.parseInt(time.getText());
+                    } catch (NumberFormatException nf) {
+                        connection.setText("<html>The TIME entered is invalid.<br>ENTER THE NUMBER OF SECONDS<br><br>No data flow.</html>");
+                        return;
+                    }
+                    dg = new DataGenerator(type);
+                    while (true) {
+                        connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
+                        try {
+                            Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
+                            client.setType(type);
+                            client.runClient(dg.createData());
+                            Thread.sleep(intTime * 1000);
+                        } catch (Exception f) {
+                            System.out.println("Server stopped running.");
+                            System.exit(0);
+                        }
+                    }
                 }
-            }
+            });
+            t1.start();
         };
         connectButton.addActionListener(click);
     }
