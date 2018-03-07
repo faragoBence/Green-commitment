@@ -18,15 +18,23 @@ public class Server extends Thread {
     XmlParser xmlParser = new XmlParser();
     Map<String, List<Measurement>> measurements = new HashMap<>();
     Scanner scanner = new Scanner(System.in);
-
+    private boolean running = true;
 
     public Server(InetAddress ipAddress) throws Exception {
         this.server = new ServerSocket(0, 1, ipAddress);
         port = this.server.getLocalPort();
     }
 
+    public boolean getRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
     public void listen() throws Exception {
-        while (true) {
+        while (running) {
             Document dom = new Handler(server.accept()).startRun();
             xmlParser.readDoc(dom, measurements);
             xmlParser.writeToXML(measurements);
@@ -39,6 +47,14 @@ public class Server extends Thread {
 
     public int getPort() {
         return port;
+    }
+
+    public void run() {
+        try {
+            this.listen();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void runServer() throws Exception {
