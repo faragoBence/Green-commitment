@@ -33,12 +33,12 @@ public class Server extends Thread {
         }
     }
 
-    private InetAddress getSocketAddress() {
+    public InetAddress getSocketAddress() {
         return this.server.getInetAddress();
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public int getPort() {
+        return port;
     }
 
     public void runServer() throws Exception {
