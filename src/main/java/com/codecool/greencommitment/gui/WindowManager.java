@@ -186,8 +186,8 @@ public class WindowManager {
         panel.add(scrollPane, c);
         frame.add(panel);
         ActionListener click = e -> {
-            //Thread t1 = new Thread(new Runnable() {
-                //public void run() {
+            Thread t1 = new Thread(new Runnable() {
+                public void run() {
                     Type type;
                     int intPort;
                     int intTime;
@@ -226,9 +226,9 @@ public class WindowManager {
                             System.exit(0);
                         }
                     }
-              //  }
-           // });
-           // t1.start();
+              }
+           });
+           t1.start();
         };
         connectButton.addActionListener(click);
     }
@@ -282,7 +282,8 @@ public class WindowManager {
         chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
         //ApplicationFrame setContentPane( chartPanel );
         ChartPanel cp = new ChartPanel(lineChart);
-        frame.add(cp);
+        panel.add(cp, c);
+        frame.add(panel);
     }
 
     private DefaultCategoryDataset createDataset( ) {
