@@ -73,10 +73,10 @@ public class XmlParser {
                 Measurement mes;
                 if (type.equals("Celsius")) {
                     mes = new TemperatureMeasurement(time, unit, type);
-                    WindowManager.setServerList(mes);
+                    WindowManager.setServerJlist(mes);
                 } else {
                     mes = new MoistureMeasurement(time, unit, type);
-                    WindowManager.setServerList(mes);
+                    WindowManager.setServerJlist(mes);
                 }
                 if (measurementsMap.containsKey(id)) {
                     measurementsMap.get(id).add(mes);
