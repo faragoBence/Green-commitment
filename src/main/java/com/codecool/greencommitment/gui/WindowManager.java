@@ -17,7 +17,6 @@ import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -37,6 +36,14 @@ public class WindowManager {
     private static String[] serverMesArray = new String[0];
     private static JList<String> clientList = new JList<>();
     private static String[] clientMesArray = new String[0];
+    private int files = 0;
+    private List<String> stringList;
+    private JPanel chartButtonPanel, chartPanel;
+    private JFrame frame;
+    private ButtonGroup bGroup;
+    private DefaultCategoryDataset dataset;
+    private ChartPanel cp;
+    private String unitOfMeasurement = "";
 
     public WindowManager(int width, int height) {
         this.width = width;
@@ -280,56 +287,178 @@ public class WindowManager {
     }
 
     private void handleChart() {
-        JFrame frame = new JFrame("Green Commitment - KokeroTCP - Line Chart");
-        frame.setVisible(true);
-        frame.setSize(1000, 640);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(null);
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.setBounds(10, 10, 800, 590);
-        panel.setVisible(true);
+        if (unitOfMeasurement.equals("")) {
+            unitOfMeasurement = "Unit of Measurement";
+        }
+        if (frame == null) {
+            frame = new JFrame("Green Commitment - KokeroTCP - Line Chart");
+            frame.setSize(1000, 640);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setLayout(null);
+            frame.setVisible(true);
+        }
+        if (chartPanel == null) {
+            chartPanel = new JPanel();
+            chartPanel.setLayout(new GridBagLayout());
+            chartPanel.setBounds(10, 10, 800, 590);
+            chartPanel.setVisible(true);
+        }
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 1;
         c.weighty = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
+        if (dataset == null)
+            createDataset("");
+        JFreeChart lineChart;
+        switch (unitOfMeasurement) {
+            case "Celsius":
+                lineChart = ChartFactory.createLineChart(
+                        "Temperature measurements",
+                        "Time", "Temperature",
+                        dataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                break;
+            case "%":
+                lineChart = ChartFactory.createLineChart(
+                        "Humidity measurements",
+                        "Time", "Humidity (%)",
+                        dataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                break;
+            default:
+                lineChart = ChartFactory.createLineChart(
+                        "Measurements",
+                        "Time", "Unit of Measurements",
+                        dataset,
+                        PlotOrientation.VERTICAL,
+                        true, true, false);
+                break;
+        }
 
-        JFreeChart lineChart = ChartFactory.createLineChart(
-                "Temperature measurements",
-                "Time", "Temperature",
-                createDataset(),
-                PlotOrientation.VERTICAL,
-                true, true, false);
-
-        ChartPanel cp = new ChartPanel(lineChart);
-        panel.add(cp, c);
-        frame.add(panel);
-        //frame.setLayout(new GridLayout());
-        JPanel buttonPanel = createChartSettingsPanel();
-        buttonPanel.setBounds(820, 10, 160, 590);
-        frame.add(buttonPanel);
-
-
+        if (cp != null)
+            cp.setVisible(false);
+        cp = new ChartPanel(lineChart);
+        cp.setVisible(true);
+        chartPanel.add(cp, c);
+        frame.add(chartPanel);
+        createChartSettingsPanel();
+        chartButtonPanel.setBounds(820, 10, 160, 590);
+        frame.add(chartButtonPanel);
     }
 
-    private DefaultCategoryDataset createDataset() {
+
+    private void createChartSettingsPanel() {
+        chartButtonPanel = new JPanel();
+        chartButtonPanel.setLayout(new GridBagLayout());
+        chartButtonPanel.setVisible(true);
+        GridBagConstraints c = new GridBagConstraints();
+        c.weightx = 1;
+        c.weighty = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.fill = GridBagConstraints.BOTH;
+        bGroup = createButtons(c);
+        Enumeration<AbstractButton> abs = bGroup.getElements();
+        ActionListener click = e -> {
+            switch (((JButton) e.getSource()).getText()) {
+                case "▲":
+                    if (files > 0) {
+                        files -= 10;
+                        bGroup = createButtons(c);
+                        handleChart();
+                    }
+                    break;
+                case "▼":
+                    if (files < stringList.size() + 10) {
+                        files += 10;
+                        bGroup = createButtons(c);
+                        handleChart();
+                    }
+                    break;
+                default:
+                    createDataset(((JButton) e.getSource()).getText());
+                    handleChart();
+                    break;
+            }
+        };
+        while (abs.hasMoreElements()) {
+            abs.nextElement().addActionListener(click);
+        }
+    }
+
+
+    private ButtonGroup createButtons(GridBagConstraints c) {
+        if (chartButtonPanel != null)
+            chartButtonPanel.setVisible(false);
+        chartButtonPanel = new JPanel();
+        chartButtonPanel.setLayout(new GridBagLayout());
+        chartButtonPanel.setVisible(true);
+        Map<String, List<Measurement>> measurementMap = null;
+        try {
+            measurementMap = new XmlParser().readXMLFiles("resources");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ButtonGroup bGroup = new ButtonGroup();
+        if (measurementMap != null && measurementMap.size() != 0) {
+            JButton upButton = new JButton("▲");
+            bGroup.add(upButton);
+            chartButtonPanel.add(upButton, c);
+            for (int i = 0; i < 2; i++) {
+                JLabel label = new JLabel("");
+                chartButtonPanel.add(label, c);
+            }
+            Set<String> ids = measurementMap.keySet();
+            stringList = new ArrayList<>(ids);
+            for (int i = files; i < files + 10; i++) {
+                if (i < stringList.size()) {
+                    JButton jButton = new JButton(stringList.get(i));
+                    bGroup.add(jButton);
+                    chartButtonPanel.add(jButton, c);
+                } else {
+                    JLabel label = new JLabel("");
+                    chartButtonPanel.add(label, c);
+                }
+
+            }
+            for (int i = 0; i < 2; i++) {
+                JLabel label = new JLabel("");
+                chartButtonPanel.add(label, c);
+            }
+            JButton downButton = new JButton("▼");
+            bGroup.add(downButton);
+            chartButtonPanel.add(downButton, c);
+        } else {
+            JLabel label = new JLabel("No measurements yet.");
+            chartButtonPanel.add(label);
+        }
+        return bGroup;
+    }
+
+    private void createDataset(String id) {
         Map<String, java.util.List<Measurement>> measurements = new HashMap<>();
         XmlParser xmlParser = new XmlParser();
         try {
-            measurements = xmlParser.sort(xmlParser.readXMLFiles("resources"), "Celsius");
+            measurements = xmlParser.readXMLFiles("resources");
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
         }
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset = new DefaultCategoryDataset();
         SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
         for (Map.Entry<String, List<Measurement>> entry : measurements.entrySet()) {
-            for (Measurement measurement : entry.getValue()) {
-                System.out.println(new Date(measurement.getCurrentTime()));
-                dataset.addValue(measurement.getUnit(), entry.getKey(), df.format(new Date(measurement.getCurrentTime())));
+            if (entry.getKey().equals(id)) {
+                for (Measurement measurement : entry.getValue()) {
+                    dataset.addValue(measurement.getUnit(), entry.getKey(), df.format(new Date(measurement.getCurrentTime())));
+                    if (measurement.getUnitOfMeasurement().equalsIgnoreCase("celsius")) {
+                        unitOfMeasurement = "Celsius";
+                    } else {
+                        unitOfMeasurement = "%";
+                    }
+                }
             }
         }
-        return dataset;
     }
 
     public static void setServerList(Measurement mes) {
@@ -350,58 +479,5 @@ public class WindowManager {
         clientMesArray = tempArray;
         clientMesArray[clientMesArray.length - 1] = clientMesArray.length + ". " + clientMesArray[clientMesArray.length - 1];
         clientList.setListData(clientMesArray);
-    }
-
-    private JPanel createChartSettingsPanel() {
-        JPanel panel = new JPanel();
-        JButton refreshChart = new JButton("refresh");
-        JButton addElement = new JButton("add");
-
-        panel.setLayout(new GridBagLayout());
-        panel.setVisible(true);
-        GridBagConstraints c = new GridBagConstraints();
-        c.weightx = 1;
-        c.weighty = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.BOTH;
-        Map<String, List<Measurement>> measurementMap = null;
-        try {
-            measurementMap = new XmlParser().readXMLFiles("resources");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (measurementMap != null && measurementMap.size() != 0) {
-            JButton jButton = new JButton("▲");
-            panel.add(jButton, c);
-            for (int i = 0; i < 2; i++) {
-                JLabel label = new JLabel("");
-                panel.add(label, c);
-            }
-            Set<String> ids = measurementMap.keySet();
-            List<String> stringList = new ArrayList<>(ids);
-            for (int i = 0; i < 10; i++) {
-                if (i < ids.size()) {
-                    jButton = new JButton(stringList.get(i));
-                    panel.add(jButton, c);
-                } else {
-                    JLabel label = new JLabel("");
-                    panel.add(label, c);
-                }
-
-            }
-            for (int i = 0; i < 2; i++) {
-                JLabel label = new JLabel("");
-                panel.add(label, c);
-            }
-            jButton = new JButton("▼");
-            panel.add(jButton, c);
-        } else {
-            JLabel label = new JLabel("No measurements yet.");
-            panel.add(label);
-        }
-
-
-        return panel;
-
     }
 }
