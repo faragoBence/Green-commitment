@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,8 @@ public class WindowManager {
     private boolean wasSelected;
     private Thread thread;
     private DataGenerator dg;
+    private static JList<String> serverJlist = new JList<>();
+    private static String[] serverMesArray = new String[0];
 
     public WindowManager(int width, int height) {
         this.width = width;
@@ -112,9 +115,8 @@ public class WindowManager {
 
         JLabel serverInfo = new JLabel("<html>Running server on IP: " + server.getSocketAddress() + "<br>PORT: " + server.getPort() + "</html>");
         panel.add(serverInfo, c);
-        JList<String> jlist = new JList<>();
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(jlist);
+        scrollPane.setViewportView(serverJlist);
         panel.add(scrollPane, c);
         JButton start = new JButton("Start server");
         JButton stop = new JButton("Stop server");
@@ -327,5 +329,18 @@ public class WindowManager {
             }
         }
         return dataset;
+    }
+
+    public static void setServerJlist(Measurement mes) {
+        String[] tempArray = new String[serverMesArray.length + 1];
+        for (int i = 0; i < serverMesArray.length; i++) {
+            tempArray[i] = serverMesArray[i];
+        }
+        SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
+        Date currDate = new Date(mes.getCurrentTime());
+        String formattedDate = df.format(currDate);
+        tempArray[tempArray.length - 1] = df.format(new Date(mes.getCurrentTime()))+", "+mes.getClass().getSimpleName().replace("Measurement", "") + ", "+mes.getUnit()+" "+mes.getUnitOfMeasurement();
+        serverMesArray = tempArray;
+        serverJlist.setListData(serverMesArray);
     }
 }

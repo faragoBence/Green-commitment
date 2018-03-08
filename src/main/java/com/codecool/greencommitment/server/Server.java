@@ -18,7 +18,7 @@ public class Server extends Thread {
     XmlParser xmlParser = new XmlParser();
     Map<String, List<Measurement>> measurements = new HashMap<>();
     Scanner scanner = new Scanner(System.in);
-    private boolean running = true;
+    private boolean running = false;
 
     public Server(InetAddress ipAddress) throws Exception {
         this.server = new ServerSocket(0, 1, ipAddress);

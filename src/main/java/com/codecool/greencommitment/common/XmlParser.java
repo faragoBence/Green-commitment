@@ -1,5 +1,6 @@
 package com.codecool.greencommitment.common;
 
+import com.codecool.greencommitment.gui.WindowManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -71,8 +72,10 @@ public class XmlParser {
                 Measurement mes;
                 if (type.equals("Celsius")) {
                     mes = new TemperatureMeasurement(time, unit, type);
+                    WindowManager.setServerJlist(mes);
                 } else {
                     mes = new MoistureMeasurement(time, unit, type);
+                    WindowManager.setServerJlist(mes);
                 }
                 if (measurementsMap.containsKey(id)) {
                     measurementsMap.get(id).add(mes);
