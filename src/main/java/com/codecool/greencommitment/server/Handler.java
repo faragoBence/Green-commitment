@@ -17,7 +17,6 @@ import java.util.Map;
 public class Handler extends Thread {
 
     private Socket socket;
-    Document dom;
     private XmlParser xmlParser = new XmlParser();
     private Map<String, List<Measurement>> measurements = new HashMap<>();
 
@@ -33,7 +32,7 @@ public class Handler extends Thread {
 
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            dom = dBuilder.parse(socket.getInputStream());
+            Document dom = dBuilder.parse(socket.getInputStream());
             xmlParser.readDoc(dom, measurements);
             xmlParser.writeToXML(measurements);
 

@@ -29,13 +29,13 @@ public class DataGenerator {
                 unit = 15 + random.nextInt(25);
                 unitOfMeasurement = "Celsius";
                 measure = new TemperatureMeasurement(time, unit, unitOfMeasurement);
-                WindowManager.setClientJlist(measure);
+                WindowManager.setClientList(measure);
                 return measure;
             case MOISTURE:
                 unit = 20 + random.nextInt(50);
                 unitOfMeasurement = "%";
                 measure = new MoistureMeasurement(time, unit, unitOfMeasurement);
-                WindowManager.setClientJlist(measure);
+                WindowManager.setClientList(measure);
                 return measure;
         }
         return measure;

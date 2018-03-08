@@ -1,15 +1,7 @@
 package com.codecool.greencommitment.server;
 
-import com.codecool.greencommitment.common.Measurement;
-import com.codecool.greencommitment.common.XmlParser;
-import org.w3c.dom.Document;
-
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 public class Server extends Thread {
 

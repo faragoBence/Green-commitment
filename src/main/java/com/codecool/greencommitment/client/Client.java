@@ -27,7 +27,7 @@ public class Client {
         XmlParser parser = new XmlParser();
         parser.createDoc(mes, id);
 
-        StreamResult result = new StreamResult(socket.getOutputStream() );
+        StreamResult result = new StreamResult(socket.getOutputStream());
         TransformerFactory tFactory = TransformerFactory.newInstance();
         DOMSource domsource = parser.getSource();
         try {

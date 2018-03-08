@@ -22,7 +22,6 @@ import java.util.Map;
 public class XmlParser {
 
     private DOMSource source;
-    private Document doc;
     private Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
@@ -49,7 +48,6 @@ public class XmlParser {
 
             doc = appendChild(rootElement, doc, measurement, id);
             source = new DOMSource(doc);
-            this.doc = doc;
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -73,10 +71,10 @@ public class XmlParser {
                 Measurement mes;
                 if (type.equals("Celsius")) {
                     mes = new TemperatureMeasurement(time, unit, type);
-                    WindowManager.setServerJlist(mes);
+                    WindowManager.setServerList(mes);
                 } else {
                     mes = new MoistureMeasurement(time, unit, type);
-                    WindowManager.setServerJlist(mes);
+                    WindowManager.setServerList(mes);
                 }
                 if (measurementsMap.containsKey(id)) {
                     measurementsMap.get(id).add(mes);
@@ -156,9 +154,11 @@ public class XmlParser {
         File[] files = new File(path).listFiles();
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        for (File file : files) {
-            Document doc = dBuilder.parse(path + "/" + file.getName());
-            readDoc(doc, measurementsMap);
+        if (files != null) {
+            for (File file : files) {
+                Document doc = dBuilder.parse(path + "/" + file.getName());
+                readDoc(doc, measurementsMap);
+            }
         }
         return measurementsMap;
     }
