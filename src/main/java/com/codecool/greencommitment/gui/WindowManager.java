@@ -3,24 +3,29 @@ package com.codecool.greencommitment.gui;
 import com.codecool.greencommitment.client.Client;
 import com.codecool.greencommitment.client.DataGenerator;
 import com.codecool.greencommitment.client.Type;
+import com.codecool.greencommitment.common.Measurement;
+import com.codecool.greencommitment.common.XmlParser;
 import com.codecool.greencommitment.server.Server;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.ui.ApplicationFrame;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WindowManager {
 
@@ -272,28 +277,39 @@ public class WindowManager {
         c.fill = GridBagConstraints.BOTH;
 
         JFreeChart lineChart = ChartFactory.createLineChart(
-                "Chart Title",
-                "name of x axis","name of y axis",
+                "Temperature measurements",
+                "Time", "Temperature",
                 createDataset(),
                 PlotOrientation.VERTICAL,
-                true,true,false);
+                true, true, false);
 
-        ChartPanel chartPanel = new ChartPanel( lineChart );
-        chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
+        ChartPanel chartPanel = new ChartPanel(lineChart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
         //ApplicationFrame setContentPane( chartPanel );
         ChartPanel cp = new ChartPanel(lineChart);
         panel.add(cp, c);
         frame.add(panel);
     }
 
-    private DefaultCategoryDataset createDataset( ) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
-        dataset.addValue( 15 , "schools" , "1970" );
-        dataset.addValue( 30 , "schools" , "1980" );
-        dataset.addValue( 60 , "schools" ,  "1990" );
-        dataset.addValue( 120 , "schools" , "2000" );
-        dataset.addValue( 240 , "schools" , "2010" );
-        dataset.addValue( 300 , "schools" , "2014" );
+    private DefaultCategoryDataset createDataset() {
+        Map<String, java.util.List<Measurement>> measurements = new HashMap<>();
+        XmlParser xmlParser = new XmlParser();
+        try {
+            measurements = xmlParser.sort(xmlParser.readXMLFiles("resources"), "Celsius");
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (Map.Entry<String, List<Measurement>> entry : measurements.entrySet()) {
+            for (Measurement measurement : entry.getValue()) {
+                System.out.println(new Date(measurement.getCurrentTime()));
+                dataset.addValue(measurement.getUnit(), entry.getKey().toString(), (new Date(measurement.getCurrentTime())).toString());
+            }
+        }
         return dataset;
     }
 }
