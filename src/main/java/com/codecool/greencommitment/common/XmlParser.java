@@ -22,12 +22,13 @@ import java.util.Map;
 public class XmlParser {
 
     private DOMSource source;
-    public Document doc;
+    private Document doc;
     private Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
         return measurementsMap;
     }
+
     public DOMSource getSource() {
         return source;
     }

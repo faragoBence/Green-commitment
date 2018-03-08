@@ -255,7 +255,7 @@ public class WindowManager {
                         return;
                     }
                     dg = new DataGenerator(type);
-                    while (closeOperation) {
+                    while (true) {
                         try {
                             if (server.getRunning()) {
                                 Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
