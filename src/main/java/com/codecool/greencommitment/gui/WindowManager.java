@@ -237,11 +237,16 @@ public class WindowManager {
                     dg = new DataGenerator(type);
                     while (true) {
                         try {
-                            Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
-                            client.setType(type);
-                            client.runClient(dg.createData());
-                            connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
-                            Thread.sleep(intTime * 1000);
+                            if (server.getRunning()) {
+                                Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
+                                client.setType(type);
+                                client.runClient(dg.createData());
+                                connection.setText("<html>CONNECTION INFORMATION<br>IP: " + ip.getText() + "<br>PORT: " + port.getText() + "<br>Sending data to server.</html>");
+                                Thread.sleep(intTime * 1000);
+                            }
+                            else{
+                                connection.setText("server is ded");
+                            }
                         } catch (Exception f) {
                             connection.setText("<html>CONNECTION INFORMATION<br><br><br>Server stopped running.");
                             break;
