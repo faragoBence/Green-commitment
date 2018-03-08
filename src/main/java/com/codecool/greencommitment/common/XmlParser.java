@@ -22,12 +22,13 @@ import java.util.Map;
 public class XmlParser {
 
     private DOMSource source;
-    public Document doc;
+    private Document doc;
     private Map<String, List<Measurement>> measurementsMap = new HashMap<>();
 
     public Map<String, List<Measurement>> getMeasurements() {
         return measurementsMap;
     }
+
     public DOMSource getSource() {
         return source;
     }
@@ -72,10 +73,10 @@ public class XmlParser {
                 Measurement mes;
                 if (type.equals("Celsius")) {
                     mes = new TemperatureMeasurement(time, unit, type);
-                    WindowManager.setServerJlist(mes);
+                    WindowManager.setServerList(mes);
                 } else {
                     mes = new MoistureMeasurement(time, unit, type);
-                    WindowManager.setServerJlist(mes);
+                    WindowManager.setServerList(mes);
                 }
                 if (measurementsMap.containsKey(id)) {
                     measurementsMap.get(id).add(mes);

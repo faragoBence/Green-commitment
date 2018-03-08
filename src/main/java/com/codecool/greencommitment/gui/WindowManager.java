@@ -23,21 +23,18 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class WindowManager {
 
     private final int width, height;
     private Server server;
-    private boolean wasSelected;
     private Thread thread;
     private DataGenerator dg;
-    private static JList<String> serverJlist = new JList<>();
+    private static JList<String> serverList = new JList<>();
     private static String[] serverMesArray = new String[0];
-    private static JList<String> clientJlist = new JList<>();
+    private static JList<String> clientList = new JList<>();
     private static String[] clientMesArray = new String[0];
 
     public WindowManager(int width, int height) {
@@ -57,7 +54,7 @@ public class WindowManager {
         JPanel panel = new JPanel();
         JButton server = new JButton("server");
         JButton client = new JButton("client");
-        JButton chart = new JButton(("chart"));
+        JButton chart = new JButton("chart");
 
         panel.add(server);
         panel.add(client);
@@ -76,7 +73,6 @@ public class WindowManager {
                     handleClient();
                     break;
                 }
-
                 case "chart" : {
                     handleChart();
                     break;
@@ -118,7 +114,7 @@ public class WindowManager {
         JLabel serverInfo = new JLabel("<html>Running server on IP: " + server.getSocketAddress() + "<br>PORT: " + server.getPort() + "</html>");
         panel.add(serverInfo, c);
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(serverJlist);
+        scrollPane.setViewportView(serverList);
         panel.add(scrollPane, c);
         JButton start = new JButton("Start server");
         JButton stop = new JButton("Stop server");
@@ -179,7 +175,8 @@ public class WindowManager {
         panel.add(id, c);
         JLabel dataLabel = new JLabel("DATA TYPE: ");
         panel.add(dataLabel, c);
-        JComboBox data = new JComboBox(Type.values());
+        String[] types = Arrays.toString(Type.values()).replaceAll("^.|.$", "").split(", ");
+        JComboBox<String> data = new JComboBox<>(types);
 
         panel.add(data, c);
         JLabel timeLabel = new JLabel("TIME: ");
@@ -192,63 +189,61 @@ public class WindowManager {
         JLabel connection = new JLabel("<html>No connection yet.<br><br><br>No data flow.</html>");
         panel.add(connection, c);
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(clientJlist);
+        scrollPane.setViewportView(clientList);
         c.insets = new Insets(10, 30, 10, 30);
         panel.add(scrollPane, c);
         frame.add(panel);
         ActionListener click = e -> {
-            Thread t1 = new Thread(new Runnable() {
-                public void run() {
-                    Type type;
-                    int intPort;
-                    int intTime;
-                    if (!validIP(ip.getText())) {
-                        connection.setText("<html>The IP entered is invalid.<br><br><br>No data flow.</html>");
-                        ipLabel.setForeground(Color.red);
-                        return;
-                    } else {
-                        ipLabel.setForeground(Color.black);
-                    }
+            Thread t1 = new Thread(() -> {
+                Type type;
+                int intPort;
+                int intTime;
+                if (!validIP(ip.getText())) {
+                    connection.setText("<html>The IP entered is invalid.<br><br><br>No data flow.</html>");
+                    ipLabel.setForeground(Color.red);
+                    return;
+                } else {
+                    ipLabel.setForeground(Color.black);
+                }
+                try {
+                    intPort = Integer.parseInt(port.getText());
+                    portLabel.setForeground(Color.black);
+                } catch (NumberFormatException nf) {
+                    connection.setText("<html>The PORT entered is invalid.<br><br><br>No data flow.</html>");
+                    portLabel.setForeground(Color.red);
+                    return;
+                }
+                try {
+                    //type = Type.valueOf(data.getText().toUpperCase());
+                    type = (Type) data.getSelectedItem();
+                    dataLabel.setForeground(Color.black);
+                } catch (IllegalArgumentException ill) {
+                    connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
+                    dataLabel.setForeground(Color.red);
+                    return;
+                }
+                try {
+                    intTime = Integer.parseInt(time.getText());
+                    timeLabel.setForeground(Color.black);
+                } catch (NumberFormatException nf) {
+                    connection.setText("<html>The TIME entered is invalid.<br>ENTER THE NUMBER OF SECONDS<br><br>No data flow.</html>");
+                    timeLabel.setForeground(Color.red);
+                    return;
+                }
+                dg = new DataGenerator(type);
+                while (true) {
                     try {
-                        intPort = Integer.parseInt(port.getText());
-                        portLabel.setForeground(Color.black);
-                    } catch (NumberFormatException nf) {
-                        connection.setText("<html>The PORT entered is invalid.<br><br><br>No data flow.</html>");
-                        portLabel.setForeground(Color.red);
-                        return;
+                        Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
+                        client.setType(type);
+                        client.runClient(dg.createData());
+                        connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
+                        Thread.sleep(intTime * 1000);
+                    } catch (Exception f) {
+                        connection.setText("<html>CONNECTION INFORMATION<br><br><br>Server stopped running.");
+                        break;
                     }
-                    try {
-                        //type = Type.valueOf(data.getText().toUpperCase());
-                        type = (Type) data.getSelectedItem();
-                        dataLabel.setForeground(Color.black);
-                    } catch (IllegalArgumentException ill) {
-                        connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
-                        dataLabel.setForeground(Color.red);
-                        return;
-                    }
-                    try {
-                        intTime = Integer.parseInt(time.getText());
-                        timeLabel.setForeground(Color.black);
-                    } catch (NumberFormatException nf) {
-                        connection.setText("<html>The TIME entered is invalid.<br>ENTER THE NUMBER OF SECONDS<br><br>No data flow.</html>");
-                        timeLabel.setForeground(Color.red);
-                        return;
-                    }
-                    dg = new DataGenerator(type);
-                    while (true) {
-                        try {
-                            Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
-                            client.setType(type);
-                            client.runClient(dg.createData());
-                            connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
-                            Thread.sleep(intTime * 1000);
-                        } catch (Exception f) {
-                            connection.setText("<html>CONNECTION INFORMATION<br><br><br>Server stopped running.");
-                            break;
-                        }
-                    }
-              }
-           });
+                }
+          });
            t1.start();
         };
         connectButton.addActionListener(click);
@@ -277,7 +272,7 @@ public class WindowManager {
         }
     }
 
-    public void handleChart() {
+    private void handleChart() {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Line Chart");
         frame.setVisible(true);
         frame.setSize(800, 600);
@@ -326,27 +321,23 @@ public class WindowManager {
         return dataset;
     }
 
-    public static void setServerJlist(Measurement mes) {
+    public static void setServerList(Measurement mes) {
         String[] tempArray = new String[serverMesArray.length + 1];
-        for (int i = 0; i < serverMesArray.length; i++) {
-            tempArray[i] = serverMesArray[i];
-        }
+        System.arraycopy(serverMesArray, 0, tempArray, 0, serverMesArray.length);
         SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
         tempArray[tempArray.length - 1] = df.format(new Date(mes.getCurrentTime()))+", "+mes.getClass().getSimpleName().replace("Measurement", "") + ", "+mes.getUnit()+" "+mes.getUnitOfMeasurement();
         serverMesArray = tempArray;
         serverMesArray[serverMesArray.length - 1] = serverMesArray.length + ". " + serverMesArray[serverMesArray.length - 1];
-        serverJlist.setListData(serverMesArray);
+        serverList.setListData(serverMesArray);
     }
 
-    public static void setClientJlist(Measurement mes) {
+    public static void setClientList(Measurement mes) {
         String[] tempArray = new String[clientMesArray.length + 1];
-        for (int i = 0; i < clientMesArray.length; i++) {
-            tempArray[i] = clientMesArray[i];
-        }
+        System.arraycopy(clientMesArray, 0, tempArray, 0, clientMesArray.length);
         SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
         tempArray[tempArray.length - 1] = df.format(new Date(mes.getCurrentTime()))+", "+mes.getClass().getSimpleName().replace("Measurement", "") + ", "+mes.getUnit()+" "+mes.getUnitOfMeasurement();
         clientMesArray = tempArray;
         clientMesArray[clientMesArray.length - 1] = clientMesArray.length + ". " + clientMesArray[clientMesArray.length - 1];
-        clientJlist.setListData(clientMesArray);
+        clientList.setListData(clientMesArray);
     }
 }
