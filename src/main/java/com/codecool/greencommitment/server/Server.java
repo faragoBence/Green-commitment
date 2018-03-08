@@ -15,9 +15,6 @@ public class Server extends Thread {
 
     private ServerSocket server;
     private int port;
-    XmlParser xmlParser = new XmlParser();
-    Map<String, List<Measurement>> measurements = new HashMap<>();
-    Scanner scanner = new Scanner(System.in);
     private boolean running = false;
 
     public Server(InetAddress ipAddress) throws Exception {
@@ -35,9 +32,7 @@ public class Server extends Thread {
 
     public void listen() throws Exception {
         while (running) {
-            Document dom = new Handler(server.accept()).startRun();
-            xmlParser.readDoc(dom, measurements);
-            xmlParser.writeToXML(measurements);
+            new Handler(server.accept()).run();
         }
     }
 
@@ -63,9 +58,5 @@ public class Server extends Thread {
                 " Port=" + port);
 
         this.listen();
-    }
-
-    public Map<String, List<Measurement>> getMeasurements() {
-        return measurements;
     }
 }
