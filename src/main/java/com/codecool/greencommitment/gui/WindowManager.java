@@ -93,7 +93,14 @@ public class WindowManager {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Server");
         frame.setVisible(true);
         frame.setSize(400, 520);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                server.setRunning(false);
+                frame.setVisible(false);
+            }
+        });
         Socket socket;
         try {
             socket = new Socket();
@@ -196,6 +203,19 @@ public class WindowManager {
         c.insets = new Insets(10, 30, 10, 30);
         panel.add(scrollPane, c);
         frame.add(panel);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        boolean closeOperation = true;
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+
+
+            frame.setVisible(false);
+
+
+
+            }
+        });
         ActionListener click = e -> {
             Thread t1 = new Thread(new Runnable() {
                 public void run() {
@@ -235,7 +255,7 @@ public class WindowManager {
                         return;
                     }
                     dg = new DataGenerator(type);
-                    while (true) {
+                    while (closeOperation) {
                         try {
                             if (server.getRunning()) {
                                 Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
@@ -310,6 +330,11 @@ public class WindowManager {
         ChartPanel cp = new ChartPanel(lineChart);
         panel.add(cp, c);
         frame.add(panel);
+        frame.setLayout(new GridLayout());
+
+        //frame.add(createChartSettingsPanel());
+
+
     }
 
     private DefaultCategoryDataset createDataset() {
@@ -353,5 +378,25 @@ public class WindowManager {
         clientMesArray = tempArray;
         clientMesArray[clientMesArray.length - 1] = clientMesArray.length + ". " + clientMesArray[clientMesArray.length - 1];
         clientJlist.setListData(clientMesArray);
+    }
+
+    private JPanel createChartSettingsPanel() {
+        JPanel panel = new JPanel();
+        JButton refreshChart = new JButton("refresh");
+        JButton addElement = new JButton("add");
+
+        panel.setLayout(new GridBagLayout());
+        panel.setVisible(true);
+        GridBagConstraints c = new GridBagConstraints();
+        c.weightx = 1;
+        c.weighty = .25;
+        c.insets = new Insets(1, 30, 1, 30);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.fill = GridBagConstraints.BOTH;
+
+        panel.add(refreshChart, c);
+        panel.add(addElement, c);
+        return panel;
+
     }
 }
