@@ -193,37 +193,46 @@ public class WindowManager {
                     int intTime;
                     if (!validIP(ip.getText())) {
                         connection.setText("<html>The IP entered is invalid.<br><br><br>No data flow.</html>");
+                        ipLabel.setForeground(Color.red);
                         return;
+                    } else {
+                        ipLabel.setForeground(Color.black);
                     }
                     try {
                         intPort = Integer.parseInt(port.getText());
+                        portLabel.setForeground(Color.black);
                     } catch (NumberFormatException nf) {
                         connection.setText("<html>The PORT entered is invalid.<br><br><br>No data flow.</html>");
+                        portLabel.setForeground(Color.red);
                         return;
                     }
                     try {
                         type = Type.valueOf(data.getText().toUpperCase());
+                        dataLabel.setForeground(Color.black);
                     } catch (IllegalArgumentException ill) {
                         connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
+                        dataLabel.setForeground(Color.red);
                         return;
                     }
                     try {
                         intTime = Integer.parseInt(time.getText());
+                        timeLabel.setForeground(Color.black);
                     } catch (NumberFormatException nf) {
                         connection.setText("<html>The TIME entered is invalid.<br>ENTER THE NUMBER OF SECONDS<br><br>No data flow.</html>");
+                        timeLabel.setForeground(Color.red);
                         return;
                     }
                     dg = new DataGenerator(type);
                     while (true) {
-                        connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
                         try {
                             Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
                             client.setType(type);
                             client.runClient(dg.createData());
+                            connection.setText("<html>CONNECTION INFORMATION<br>IP: "+ip.getText()+"<br>PORT: "+port.getText()+"<br>Sending data to server.</html>");
                             Thread.sleep(intTime * 1000);
                         } catch (Exception f) {
-                            System.out.println("Server stopped running.");
-                            System.exit(0);
+                            connection.setText("<html>CONNECTION INFORMATION<br><br><br>Server stopped running.");
+                            break;
                         }
                     }
               }
