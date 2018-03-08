@@ -159,4 +159,14 @@ public class XmlParser {
         return measurementsMap;
     }
 
+    public Map<String, List<Measurement>> sort(Map<String, List<Measurement>> measurementsMap, String unitOfMeasurements) {
+        Map<String, List<Measurement>> sortedMap = new HashMap<>();
+        for (Map.Entry<String, List<Measurement>> entry : measurementsMap.entrySet()) {
+            if (entry.getValue().get(0).getUnitOfMeasurement().equals(unitOfMeasurements)) {
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return sortedMap;
+    }
+
 }
