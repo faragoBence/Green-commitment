@@ -3,6 +3,7 @@ package com.codecool.greencommitment.client;
 import com.codecool.greencommitment.common.Measurement;
 import com.codecool.greencommitment.common.MoistureMeasurement;
 import com.codecool.greencommitment.common.TemperatureMeasurement;
+import com.codecool.greencommitment.gui.WindowManager;
 
 import java.time.Instant;
 import java.util.Random;
@@ -28,11 +29,13 @@ public class DataGenerator {
                 unit = 15 + random.nextInt(25);
                 unitOfMeasurement = "Celsius";
                 measure = new TemperatureMeasurement(time, unit, unitOfMeasurement);
+                WindowManager.setClientJlist(measure);
                 return measure;
             case MOISTURE:
                 unit = 20 + random.nextInt(50);
                 unitOfMeasurement = "%";
                 measure = new MoistureMeasurement(time, unit, unitOfMeasurement);
+                WindowManager.setClientJlist(measure);
                 return measure;
         }
         return measure;

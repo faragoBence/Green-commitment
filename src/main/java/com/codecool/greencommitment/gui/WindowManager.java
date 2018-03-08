@@ -37,6 +37,8 @@ public class WindowManager {
     private DataGenerator dg;
     private static JList<String> serverJlist = new JList<>();
     private static String[] serverMesArray = new String[0];
+    private static JList<String> clientJlist = new JList<>();
+    private static String[] clientMesArray = new String[0];
 
     public WindowManager(int width, int height) {
         this.width = width;
@@ -177,9 +179,6 @@ public class WindowManager {
         panel.add(id, c);
         JLabel dataLabel = new JLabel("DATA TYPE: ");
         panel.add(dataLabel, c);
-
-        //JTextField data = new JTextField();
-
         JComboBox data = new JComboBox(Type.values());
 
         panel.add(data, c);
@@ -192,9 +191,8 @@ public class WindowManager {
         panel.add(connectButton, c);
         JLabel connection = new JLabel("<html>No connection yet.<br><br><br>No data flow.</html>");
         panel.add(connection, c);
-        JList<String> jlist = new JList<>();
         JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(jlist);
+        scrollPane.setViewportView(clientJlist);
         c.insets = new Insets(10, 30, 10, 30);
         panel.add(scrollPane, c);
         frame.add(panel);
@@ -314,18 +312,15 @@ public class WindowManager {
         XmlParser xmlParser = new XmlParser();
         try {
             measurements = xmlParser.sort(xmlParser.readXMLFiles("resources"), "Celsius");
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
+        } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
         }
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
         for (Map.Entry<String, List<Measurement>> entry : measurements.entrySet()) {
             for (Measurement measurement : entry.getValue()) {
                 System.out.println(new Date(measurement.getCurrentTime()));
-                dataset.addValue(measurement.getUnit(), entry.getKey().toString(), (new Date(measurement.getCurrentTime())).toString());
+                dataset.addValue(measurement.getUnit(), entry.getKey(), df.format(new Date(measurement.getCurrentTime())));
             }
         }
         return dataset;
@@ -337,10 +332,21 @@ public class WindowManager {
             tempArray[i] = serverMesArray[i];
         }
         SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
-        Date currDate = new Date(mes.getCurrentTime());
-        String formattedDate = df.format(currDate);
         tempArray[tempArray.length - 1] = df.format(new Date(mes.getCurrentTime()))+", "+mes.getClass().getSimpleName().replace("Measurement", "") + ", "+mes.getUnit()+" "+mes.getUnitOfMeasurement();
         serverMesArray = tempArray;
+        serverMesArray[serverMesArray.length - 1] = serverMesArray.length + ". " + serverMesArray[serverMesArray.length - 1];
         serverJlist.setListData(serverMesArray);
+    }
+
+    public static void setClientJlist(Measurement mes) {
+        String[] tempArray = new String[clientMesArray.length + 1];
+        for (int i = 0; i < clientMesArray.length; i++) {
+            tempArray[i] = clientMesArray[i];
+        }
+        SimpleDateFormat df = new SimpleDateFormat("hh:mm:ss");
+        tempArray[tempArray.length - 1] = df.format(new Date(mes.getCurrentTime()))+", "+mes.getClass().getSimpleName().replace("Measurement", "") + ", "+mes.getUnit()+" "+mes.getUnitOfMeasurement();
+        clientMesArray = tempArray;
+        clientMesArray[clientMesArray.length - 1] = clientMesArray.length + ". " + clientMesArray[clientMesArray.length - 1];
+        clientJlist.setListData(clientMesArray);
     }
 }
