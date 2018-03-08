@@ -78,7 +78,7 @@ public class Main {
                 WindowManager window = new WindowManager(400, 150);
                 window.run();
             } else {
-                System.out.println("Enter server or client as argument!");
+                System.out.println("Enter [server/client/gui] as argument!");
             }
         } catch (Exception e) {
             e.printStackTrace();

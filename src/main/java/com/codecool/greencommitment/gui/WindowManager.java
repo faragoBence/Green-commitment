@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -182,8 +183,7 @@ public class WindowManager {
         panel.add(id, c);
         JLabel dataLabel = new JLabel("DATA TYPE: ");
         panel.add(dataLabel, c);
-        String[] types = Arrays.toString(Type.values()).replaceAll("^.|.$", "").split(", ");
-        JComboBox<String> data = new JComboBox<>(types);
+        JComboBox<Type> data = new JComboBox<>(Type.values());
         panel.add(data, c);
         JLabel timeLabel = new JLabel("TIME: ");
         panel.add(timeLabel, c);
@@ -200,17 +200,6 @@ public class WindowManager {
         panel.add(scrollPane, c);
         frame.add(panel);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        boolean closeOperation = true;
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-
-
-                frame.setVisible(false);
-
-
-            }
-        });
         ActionListener click = e -> {
             Thread t1 = new Thread(() -> {
                 Type type;
@@ -251,15 +240,11 @@ public class WindowManager {
                 dg = new DataGenerator(type);
                 while (true) {
                     try {
-                        if (server.getRunning()) {
-                            Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
-                            client.setType(type);
-                            client.runClient(dg.createData());
-                            connection.setText("<html>CONNECTION INFORMATION<br>IP: " + ip.getText() + "<br>PORT: " + port.getText() + "<br>Sending data to server.</html>");
-                            Thread.sleep(intTime * 1000);
-                        } else {
-                            connection.setText("server is ded");
-                        }
+                        Client client = new Client(id.getText(), InetAddress.getByName(ip.getText()), intPort);
+                        client.setType(type);
+                        client.runClient(dg.createData());
+                        connection.setText("<html>CONNECTION INFORMATION<br>IP: " + ip.getText() + "<br>PORT: " + port.getText() + "<br>Sending data to server.</html>");
+                        Thread.sleep(intTime * 1000);
                     } catch (Exception f) {
                         connection.setText("<html>CONNECTION INFORMATION<br><br><br>Server stopped running.");
                         break;
@@ -297,15 +282,16 @@ public class WindowManager {
     private void handleChart() {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Line Chart");
         frame.setVisible(true);
-        frame.setSize(800, 600);
+        frame.setSize(1000, 640);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(null);
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
+        panel.setBounds(10, 10, 800, 590);
         panel.setVisible(true);
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 1;
-        c.weighty = .25;
-        c.insets = new Insets(1, 30, 1, 30);
+        c.weighty = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
 
@@ -316,15 +302,13 @@ public class WindowManager {
                 PlotOrientation.VERTICAL,
                 true, true, false);
 
-        ChartPanel chartPanel = new ChartPanel(lineChart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
-        //ApplicationFrame setContentPane( chartPanel );
         ChartPanel cp = new ChartPanel(lineChart);
         panel.add(cp, c);
         frame.add(panel);
-        frame.setLayout(new GridLayout());
-
-        //frame.add(createChartSettingsPanel());
+        //frame.setLayout(new GridLayout());
+        JPanel buttonPanel = createChartSettingsPanel();
+        buttonPanel.setBounds(820, 10, 160, 590);
+        frame.add(buttonPanel);
 
 
     }
@@ -377,13 +361,46 @@ public class WindowManager {
         panel.setVisible(true);
         GridBagConstraints c = new GridBagConstraints();
         c.weightx = 1;
-        c.weighty = .25;
-        c.insets = new Insets(1, 30, 1, 30);
+        c.weighty = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
+        Map<String, List<Measurement>> measurementMap = null;
+        try {
+            measurementMap = new XmlParser().readXMLFiles("resources");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (measurementMap != null && measurementMap.size() != 0) {
+            JButton jButton = new JButton("▲");
+            panel.add(jButton, c);
+            for (int i = 0; i < 2; i++) {
+                JLabel label = new JLabel("");
+                panel.add(label, c);
+            }
+            Set<String> ids = measurementMap.keySet();
+            List<String> stringList = new ArrayList<>(ids);
+            for (int i = 0; i < 10; i++) {
+                if (i < ids.size()) {
+                    jButton = new JButton(stringList.get(i));
+                    panel.add(jButton, c);
+                } else {
+                    JLabel label = new JLabel("");
+                    panel.add(label, c);
+                }
 
-        panel.add(refreshChart, c);
-        panel.add(addElement, c);
+            }
+            for (int i = 0; i < 2; i++) {
+                JLabel label = new JLabel("");
+                panel.add(label, c);
+            }
+            jButton = new JButton("▼");
+            panel.add(jButton, c);
+        } else {
+            JLabel label = new JLabel("No measurements yet.");
+            panel.add(label);
+        }
+
+
         return panel;
 
     }
