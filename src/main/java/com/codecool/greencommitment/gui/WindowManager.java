@@ -88,7 +88,7 @@ public class WindowManager {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Server");
         frame.setVisible(true);
         frame.setSize(400, 520);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         Socket socket;
         try {
             socket = new Socket();
@@ -109,6 +109,7 @@ public class WindowManager {
         c.insets = new Insets(30, 30, 30, 30);
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
+
         JLabel serverInfo = new JLabel("<html>Running server on IP: " + server.getSocketAddress() + "<br>PORT: " + server.getPort() + "</html>");
         panel.add(serverInfo, c);
         JList<String> jlist = new JList<>();
@@ -119,6 +120,7 @@ public class WindowManager {
         JButton stop = new JButton("Stop server");
         panel.add(start, c);
         panel.add(stop, c);
+        thread = new Thread(server);
         ActionListener clickListen = e -> {
             switch (((JButton) e.getSource()).getText()) {
                 case "Start server": {
@@ -150,7 +152,7 @@ public class WindowManager {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Client");
         frame.setVisible(true);
         frame.setSize(400, 520);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -173,7 +175,11 @@ public class WindowManager {
         panel.add(id, c);
         JLabel dataLabel = new JLabel("DATA TYPE: ");
         panel.add(dataLabel, c);
-        JTextField data = new JTextField();
+
+        //JTextField data = new JTextField();
+
+        JComboBox data = new JComboBox(Type.values());
+
         panel.add(data, c);
         JLabel timeLabel = new JLabel("TIME: ");
         panel.add(timeLabel, c);
@@ -212,7 +218,8 @@ public class WindowManager {
                         return;
                     }
                     try {
-                        type = Type.valueOf(data.getText().toUpperCase());
+                        //type = Type.valueOf(data.getText().toUpperCase());
+                        type = (Type) data.getSelectedItem();
                         dataLabel.setForeground(Color.black);
                     } catch (IllegalArgumentException ill) {
                         connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
