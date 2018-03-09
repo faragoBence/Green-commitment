@@ -97,7 +97,7 @@ public class WindowManager {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Server");
         frame.setVisible(true);
         frame.setSize(400, 520);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
@@ -126,7 +126,7 @@ public class WindowManager {
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.BOTH;
 
-        JLabel serverInfo = new JLabel("<html>Running server on IP: " + server.getSocketAddress() + "<br>PORT: " + server.getPort() + "</html>");
+        JLabel serverInfo = new JLabel("<html>Server isn't currently running.<br></html>");
         panel.add(serverInfo, c);
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(serverList);
@@ -141,15 +141,13 @@ public class WindowManager {
                 case "Start server": {
                     if (!server.getRunning()) {
                         server.setRunning(true);
-                        serverInfo.setText(serverInfo.getText() + "  NOW RUNNING");
-                        System.out.println("should start");
+                        serverInfo.setText(("<html>Running server on IP: " + server.getSocketAddress() + "<br>PORT: " + server.getPort() + "</html>"));
                         thread.start();
                     }
                     break;
                 }
                 case "Stop server": {
                     if (server.getRunning()) {
-                        System.out.println("should stop!");
                         server.setRunning(false);
                         serverInfo.setText(serverInfo.getText() + "  NOW STOPPED");
                         thread = new Thread(server);
@@ -167,7 +165,7 @@ public class WindowManager {
         JFrame frame = new JFrame("Green Commitment - KokeroTCP - Client");
         frame.setVisible(true);
         frame.setSize(400, 520);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -206,7 +204,6 @@ public class WindowManager {
         c.insets = new Insets(10, 30, 10, 30);
         panel.add(scrollPane, c);
         frame.add(panel);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         ActionListener click = e -> {
             Thread t1 = new Thread(() -> {
                 Type type;
