@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<measurements id="CSANÁD-MOIST">
+    <measurement>
+        <time>1520532304102</time>
+        <unit>31</unit>
+        <type>%</type>
+    </measurement>
+    <measurement>
+        <time>1520532309418</time>
+        <unit>21</unit>
+        <type>%</type>
+    </measurement>
+    <measurement>
+        <time>1520532314424</time>
+        <unit>68</unit>
+        <type>%</type>
+    </measurement>
+</measurements>

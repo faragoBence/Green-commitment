@@ -227,15 +227,14 @@ public class WindowManager {
                     portLabel.setForeground(Color.red);
                     return;
                 }
-                try {
-                    //type = Type.valueOf(data.getText().toUpperCase());
-                    type = (Type) data.getSelectedItem();
-                    dataLabel.setForeground(Color.black);
-                } catch (IllegalArgumentException ill) {
-                    connection.setText("<html>The TYPE entered is invalid.<br>ENTER [TEMPERATURE / MOISTURE]<br><br>No data flow.</html>");
-                    dataLabel.setForeground(Color.red);
+                if (id.getText().equals("")) {
+                    idLabel.setForeground(Color.red);
+                    connection.setText("<html>The ID entered is invalid.<br><br><br>No data flow.</html>");
                     return;
+                } else {
+                    idLabel.setForeground(Color.black);
                 }
+                type = (Type) data.getSelectedItem();
                 try {
                     intTime = Integer.parseInt(time.getText());
                     timeLabel.setForeground(Color.black);
